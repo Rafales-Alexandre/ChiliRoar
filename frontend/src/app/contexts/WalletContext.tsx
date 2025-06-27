@@ -40,7 +40,7 @@ export function WalletProvider({ children }: WalletProviderProps) {
   // Check if user is already connected
   useEffect(() => {
     const checkConnection = async () => {
-      if (checkIfMetaMaskInstalled()) {
+      if (checkIfMetaMaskInstalled() && window.ethereum) {
         try {
           const accounts = await window.ethereum.request({ method: 'eth_accounts' });
           if (accounts.length > 0) {
@@ -61,7 +61,7 @@ export function WalletProvider({ children }: WalletProviderProps) {
 
   // Listen for account changes
   useEffect(() => {
-    if (checkIfMetaMaskInstalled()) {
+    if (checkIfMetaMaskInstalled() && window.ethereum) {
       const handleAccountsChanged = (accounts: string[]) => {
         if (accounts.length === 0) {
           // User disconnected
@@ -85,8 +85,10 @@ export function WalletProvider({ children }: WalletProviderProps) {
       window.ethereum.on('chainChanged', handleChainChanged);
 
       return () => {
-        window.ethereum.removeListener('accountsChanged', handleAccountsChanged);
-        window.ethereum.removeListener('chainChanged', handleChainChanged);
+        if (window.ethereum) {
+          window.ethereum.removeListener('accountsChanged', handleAccountsChanged);
+          window.ethereum.removeListener('chainChanged', handleChainChanged);
+        }
       };
     }
   }, []);
@@ -96,7 +98,7 @@ export function WalletProvider({ children }: WalletProviderProps) {
     setError(null);
 
     try {
-      if (!checkIfMetaMaskInstalled()) {
+      if (!checkIfMetaMaskInstalled() || !window.ethereum) {
         throw new Error('MetaMask is not installed. Please install MetaMask to continue.');
       }
 
