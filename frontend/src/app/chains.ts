@@ -3,9 +3,6 @@
 
 import { Chain } from 'wagmi'
 
-// Icônes des chaînes
-const chilizIcon = 'https://chiliz.com/favicon.ico'
-
 // Configuration Chiliz Testnet
 export const chilizTestnet: Chain = {
   id: 88882,
@@ -18,10 +15,10 @@ export const chilizTestnet: Chain = {
   },
   rpcUrls: {
     default: {
-      http: ['https://testnet-rpc.chiliz.com'],
+      http: ['https://spicy-rpc.chiliz.com/'],
     },
     public: {
-      http: ['https://testnet-rpc.chiliz.com'],
+      http: ['https://spicy-rpc.chiliz.com/'],
     },
   },
   blockExplorers: {
@@ -37,7 +34,6 @@ export const chilizTestnet: Chain = {
     },
   },
   testnet: true,
-  iconUrl: chilizIcon,
 }
 
 // Configuration Chiliz Mainnet
@@ -71,7 +67,6 @@ export const chilizMainnet: Chain = {
     },
   },
   testnet: false,
-  iconUrl: chilizIcon,
 }
 
 // Configuration pour WalletConnect
@@ -81,7 +76,7 @@ export const walletConnectChains = [
     name: 'Chiliz Testnet',
     network: 'chiliz_testnet',
     rpcUrls: {
-      default: 'https://testnet-rpc.chiliz.com',
+      default: 'https://spicy-rpc.chiliz.com/',
     },
     blockExplorers: {
       default: {
@@ -126,7 +121,7 @@ export const chainConfig = {
       symbol: 'CHZ',
       decimals: 18,
     },
-    rpcUrls: ['https://testnet-rpc.chiliz.com'],
+    rpcUrls: ['https://spicy-rpc.chiliz.com/'],
     blockExplorerUrls: ['https://testnet.chiliscan.com'],
   },
   mainnet: {

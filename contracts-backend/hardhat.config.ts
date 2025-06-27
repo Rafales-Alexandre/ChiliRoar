@@ -28,7 +28,7 @@ const config: HardhatUserConfig = {
       allowUnlimitedContractSize: true,
     },
     chiliz_testnet: {
-      url: CHILIZ_TESTNET_RPC || "https://testnet-rpc.chiliz.com",
+      url: CHILIZ_TESTNET_RPC || "https://spicy-rpc.chiliz.com/",
       accounts: PRIVATE_KEY ? [PRIVATE_KEY] : [],
       chainId: 88882,
       gasPrice: 20000000000, // 20 gwei

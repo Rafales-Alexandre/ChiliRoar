@@ -170,14 +170,31 @@ describe("RoarPoints - Tests Avancés", function () {
 
     it("Ne devrait pas permettre de dépasser MAX_SUPPLY", async function () {
       const maxSupply = await roarPoints.MAX_SUPPLY();
-      const currentSupply = await roarPoints.totalSupply();
-      const remainingSupply = maxSupply - currentSupply;
+      const maxMintPerTx = await roarPoints.MAX_MINT_PER_TX();
       
-      // Essayer de mint plus que le supply restant
-      const tooMuch = remainingSupply + ethers.parseEther("1");
+      // Mint par petits lots jusqu'à presque atteindre le max supply
+      // Utiliser mintBatch pour éviter le cooldown
+      let totalMinted = 0n;
+      const batchSize = 10; // 10 adresses par batch
       
+      while (totalMinted + (maxMintPerTx * BigInt(batchSize)) < maxSupply) {
+        const recipients = [];
+        const amounts = [];
+        const reasons = [];
+        
+        for (let i = 0; i < batchSize; i++) {
+          recipients.push(ethers.Wallet.createRandom().address);
+          amounts.push(maxMintPerTx);
+          reasons.push("Batch mint");
+        }
+        
+        await roarPoints.connect(minter1).mintBatch(recipients, amounts, reasons);
+        totalMinted += maxMintPerTx * BigInt(batchSize);
+      }
+      
+      // Maintenant essayer de mint ne serait-ce qu'1 token de plus
       await expect(
-        roarPoints.connect(minter1).mint(user1.address, tooMuch, "Exceeds supply")
+        roarPoints.connect(minter1).mint(user2.address, ethers.parseEther("1"), "Exceeds supply")
       ).to.be.revertedWith("RoarPoints: would exceed max supply");
     });
   });
@@ -231,7 +248,7 @@ describe("RoarPoints - Tests Avancés", function () {
       
       await expect(
         roarPoints.connect(minter1).mint(user1.address, ethers.parseEther("100"), "Paused mint")
-      ).to.be.revertedWith("Pausable: paused");
+      ).to.be.revertedWithCustomError(roarPoints, "EnforcedPause");
     });
 
     it("Ne devrait pas permettre le transfert quand le contrat est en pause", async function () {
@@ -240,7 +257,7 @@ describe("RoarPoints - Tests Avancés", function () {
       
       await expect(
         roarPoints.connect(user1).transfer(user2.address, ethers.parseEther("50"))
-      ).to.be.revertedWith("Pausable: paused");
+      ).to.be.revertedWithCustomError(roarPoints, "EnforcedPause");
     });
   });
 
@@ -294,7 +311,7 @@ describe("RoarPoints - Tests Avancés", function () {
       
       await expect(
         roarPoints.connect(user2).transferFrom(user1.address, user3.address, ethers.parseEther("100"))
-      ).to.be.revertedWith("ERC20: insufficient allowance");
+      ).to.be.revertedWithCustomError(roarPoints, "ERC20InsufficientAllowance");
     });
   });
 
@@ -313,13 +330,22 @@ describe("RoarPoints - Tests Avancés", function () {
     });
 
     it("Devrait émettre l'événement MinterAdded", async function () {
+      // Supprimer le minter1 s'il existe déjà (dans le beforeEach)
+      if (await roarPoints.minters(minter1.address)) {
+        await roarPoints.removeMinter(minter1.address);
+      }
+      
       await expect(roarPoints.addMinter(minter1.address))
         .to.emit(roarPoints, "MinterAdded")
         .withArgs(minter1.address);
     });
 
     it("Devrait émettre l'événement MinterRemoved", async function () {
-      await roarPoints.addMinter(minter1.address);
+      // S'assurer que minter1 est un minter
+      if (!(await roarPoints.minters(minter1.address))) {
+        await roarPoints.addMinter(minter1.address);
+      }
+      
       await expect(roarPoints.removeMinter(minter1.address))
         .to.emit(roarPoints, "MinterRemoved")
         .withArgs(minter1.address);
@@ -355,11 +381,11 @@ describe("RoarPoints - Tests Avancés", function () {
     });
 
     it("Devrait gérer correctement les grands nombres", async function () {
-      const largeAmount = ethers.parseEther("999999999"); // Presque le max supply
-      await roarPoints.connect(minter1).mint(user1.address, largeAmount, "Large amount");
+      const maxMintPerTx = await roarPoints.MAX_MINT_PER_TX();
+      await roarPoints.connect(minter1).mint(user1.address, maxMintPerTx, "Large amount");
       
       const stats = await roarPoints.getUserStats(user1.address);
-      expect(stats[0]).to.equal(largeAmount);
+      expect(stats[0]).to.equal(maxMintPerTx);
     });
   });
 }); 

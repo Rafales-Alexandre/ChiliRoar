@@ -29,7 +29,7 @@ describe("RoarPoints", function () {
   describe("Fonction mint", function () {
     it("Devrait permettre à l'owner de mint des tokens", async function () {
       const mintAmount = ethers.parseEther("100");
-      await roarPoints.mint(user1.address, mintAmount);
+      await roarPoints.mint(user1.address, mintAmount, "Test mint");
       
       expect(await roarPoints.balanceOf(user1.address)).to.equal(mintAmount);
     });
@@ -38,16 +38,21 @@ describe("RoarPoints", function () {
       const mintAmount = ethers.parseEther("100");
       
       await expect(
-        roarPoints.connect(user1).mint(user2.address, mintAmount)
-      ).to.be.revertedWithCustomError(roarPoints, "OwnableUnauthorizedAccount");
+        roarPoints.connect(user1).mint(user2.address, mintAmount, "Test mint")
+      ).to.be.revertedWith("RoarPoints: caller is not a minter");
     });
 
     it("Devrait permettre de mint plusieurs fois", async function () {
       const mintAmount1 = ethers.parseEther("50");
       const mintAmount2 = ethers.parseEther("75");
       
-      await roarPoints.mint(user1.address, mintAmount1);
-      await roarPoints.mint(user1.address, mintAmount2);
+      await roarPoints.mint(user1.address, mintAmount1, "First mint");
+      
+      // Attendre que le cooldown expire (1 heure)
+      await ethers.provider.send("evm_increaseTime", [3601]);
+      await ethers.provider.send("evm_mine", []);
+      
+      await roarPoints.mint(user1.address, mintAmount2, "Second mint");
       
       expect(await roarPoints.balanceOf(user1.address)).to.equal(
         mintAmount1 + mintAmount2
@@ -60,7 +65,7 @@ describe("RoarPoints", function () {
       const mintAmount = ethers.parseEther("100");
       const transferAmount = ethers.parseEther("30");
       
-      await roarPoints.mint(user1.address, mintAmount);
+      await roarPoints.mint(user1.address, mintAmount, "Test mint");
       await roarPoints.connect(user1).transfer(user2.address, transferAmount);
       
       expect(await roarPoints.balanceOf(user1.address)).to.equal(
@@ -73,7 +78,7 @@ describe("RoarPoints", function () {
       const mintAmount = ethers.parseEther("100");
       const approveAmount = ethers.parseEther("50");
       
-      await roarPoints.mint(user1.address, mintAmount);
+      await roarPoints.mint(user1.address, mintAmount, "Test mint");
       await roarPoints.connect(user1).approve(user2.address, approveAmount);
       await roarPoints.connect(user2).transferFrom(user1.address, user2.address, approveAmount);
       

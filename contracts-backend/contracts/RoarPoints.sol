@@ -3,9 +3,8 @@ pragma solidity ^0.8.20;
 
 import "@openzeppelin/contracts/token/ERC20/ERC20.sol";
 import "@openzeppelin/contracts/access/Ownable.sol";
-import "@openzeppelin/contracts/security/Pausable.sol";
-import "@openzeppelin/contracts/security/ReentrancyGuard.sol";
-import "@openzeppelin/contracts/utils/Counters.sol";
+import "@openzeppelin/contracts/utils/Pausable.sol";
+import "@openzeppelin/contracts/utils/ReentrancyGuard.sol";
 
 /**
  * @title RoarPoints
@@ -13,18 +12,13 @@ import "@openzeppelin/contracts/utils/Counters.sol";
  * Compatible avec Chiliz Chain et optimisé pour l'extensibilité future (NFTs, DAO, etc.)
  */
 contract RoarPoints is ERC20, Ownable, Pausable, ReentrancyGuard {
-    using Counters for Counters.Counter;
-
     // Événements
     event PointsMinted(address indexed to, uint256 amount, string reason);
     event PointsBurned(address indexed from, uint256 amount, string reason);
     event MinterAdded(address indexed minter);
     event MinterRemoved(address indexed minter);
-    event Paused(address indexed account);
-    event Unpaused(address indexed account);
 
     // Variables d'état
-    Counters.Counter private _activityIdCounter;
     mapping(address => bool) public minters;
     mapping(address => uint256) public lastMintTime;
     mapping(address => uint256) public totalMinted;
@@ -173,12 +167,12 @@ contract RoarPoints is ERC20, Ownable, Pausable, ReentrancyGuard {
      * @dev Récupérer les statistiques d'un utilisateur
      * @param user Adresse de l'utilisateur
      * @return balance Solde actuel
-     * @return totalMinted Total minté pour cet utilisateur
+     * @return userTotalMinted Total minté pour cet utilisateur
      * @return lastMint Dernier mint
      */
     function getUserStats(address user) external view returns (
         uint256 balance,
-        uint256 totalMinted,
+        uint256 userTotalMinted,
         uint256 lastMint
     ) {
         return (

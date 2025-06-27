@@ -9,10 +9,10 @@
     "test:coverage": "hardhat coverage",
     "node": "hardhat node",
     "deploy:local": "hardhat run scripts/deploy.ts --network localhost",
-    "deploy:testnet": "hardhat run scripts/deploy.ts --network testnet",
-    "deploy:mainnet": "hardhat run scripts/deploy.ts --network mainnet",
-    "verify:testnet": "hardhat verify --network testnet",
-    "verify:mainnet": "hardhat verify --network mainnet",
+    "deploy:testnet": "hardhat run scripts/deploy.ts --network chiliz_testnet",
+    "deploy:mainnet": "hardhat run scripts/deploy.ts --network chiliz_mainnet",
+    "verify:testnet": "hardhat verify --network chiliz_testnet",
+    "verify:mainnet": "hardhat verify --network chiliz_mainnet",
     "gas": "REPORT_GAS=true hardhat test",
     "lint": "solhint 'contracts/**/*.sol'",
     "lint:fix": "solhint 'contracts/**/*.sol' --fix",
@@ -32,27 +32,15 @@
   "author": "ChiliRoar Team",
   "license": "MIT",
   "devDependencies": {
+    "@nomicfoundation/hardhat-ignition": "^0.15.12",
     "@nomicfoundation/hardhat-toolbox": "^4.0.0",
-    "@nomicfoundation/hardhat-network-helpers": "^1.0.8",
-    "@nomicfoundation/hardhat-chai-matchers": "^2.0.2",
-    "@nomicfoundation/hardhat-ethers": "^3.0.4",
-    "@nomicfoundation/hardhat-verify": "^1.1.1",
-    "@typechain/ethers-v6": "^0.4.3",
-    "@typechain/hardhat": "^8.0.3",
-    "@types/chai": "^4.3.5",
-    "@types/mocha": "^10.0.1",
-    "@types/node": "^20.5.0",
-    "chai": "^4.3.7",
-    "ethers": "^6.7.1",
-    "hardhat": "^2.17.1",
-    "hardhat-gas-reporter": "^1.0.9",
-    "solidity-coverage": "^0.8.4",
-    "solhint": "^4.0.0",
-    "typechain": "^8.3.1",
+    "@typechain/ethers-v6": "^0.5.0",
+    "@typechain/hardhat": "^9.0.0",
+    "ts-node": "^10.9.1",
     "typescript": "^5.1.6"
   },
   "dependencies": {
-    "@openzeppelin/contracts": "^5.0.0"
+    "@openzeppelin/contracts": "^5.0.2"
   },
   "repository": {
     "type": "git",
@@ -62,4 +50,4 @@
     "url": "https://github.com/chiliroar/chiliroar-contracts/issues"
   },
   "homepage": "https://github.com/chiliroar/chiliroar-contracts#readme"
-} 
+}
