@@ -25,7 +25,7 @@ export default function Treemap({ data, loading = false }: TreemapProps) {
             token={{
               ticker: item.name,
               name: item.name,
-              category: '', // à adapter si tu veux afficher la catégorie
+              category: 'other' as const,
               country: '',
               league: '',
               price: item.price ?? 0,
