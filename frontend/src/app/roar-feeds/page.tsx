@@ -2,325 +2,334 @@
 import React, { useState } from 'react';
 import Sidebar from '../../components/Sidebar';
 
-// Fonction pour générer des avatars avec DiceBear
-const generateAvatar = (name: string, style: 'adventurer' | 'avataaars' | 'big-ears' | 'bottts' | 'croodles' | 'fun-emoji' = 'adventurer') => {
+interface RoarPost {
+  id: string;
+  author: {
+    name: string;
+    handle: string;
+    avatar: string;
+    verified: boolean;
+    followers: number;
+  };
+  content: string;
+  timestamp: string;
+  likes: number;
+  comments: number;
+  shares: number;
+  tags: string[];
+  fanToken?: string;
+  image?: string;
+  isLiked?: boolean;
+  isBookmarked?: boolean;
+}
+
+// Function to generate avatars with DiceBear
+const generateAvatar = (name: string) => {
   const seed = name.toLowerCase().replace(/[^a-z0-9]/g, '');
-  return `https://api.dicebear.com/7.x/${style}/svg?seed=${seed}`;
+  return `https://api.dicebear.com/7.x/adventurer/svg?seed=${seed}`;
 };
 
-// Fonction pour obtenir les initiales d'un nom
-const getInitials = (name: string) => {
-  return name
-    .split(' ')
-    .map(word => word.charAt(0))
-    .join('')
-    .toUpperCase()
-    .slice(0, 2);
-};
-
-// Fonction pour générer une couleur basée sur le nom
-const getAvatarColor = (name: string) => {
-  const colors = [
-    'bg-red-500', 'bg-blue-500', 'bg-green-500', 'bg-yellow-500', 
-    'bg-purple-500', 'bg-pink-500', 'bg-indigo-500', 'bg-teal-500'
-  ];
-  const index = name.split('').reduce((acc, char) => acc + char.charCodeAt(0), 0) % colors.length;
-  return colors[index];
-};
-
-// Composant Avatar avec fallback
-const Avatar = ({ src, name, size = 'w-10 h-10' }: { src?: string; name: string; size?: string }) => {
-  const [imageError, setImageError] = useState(false);
-  const initials = getInitials(name);
-  const bgColor = getAvatarColor(name);
-
-  if (!src || imageError) {
-    return (
-      <div className={`${size} ${bgColor} rounded-full flex items-center justify-center text-white text-sm font-bold border border-gray-700`}>
-        {initials}
-      </div>
-    );
-  }
-
-  return (
-    <img 
-      src={src} 
-      alt={name} 
-      className={`${size} rounded-full border border-gray-700 object-cover`}
-      onError={() => setImageError(true)}
-    />
-  );
-};
-
-const filters = ['🔥 Top Roars', '⭐ Emerging Roars', '📈 Trending', '🆕 Latest'];
-const timeFilters = ['24H', '7D', '30D', 'All Time'];
-
-const top10 = [
-  { rank: 1, avatar: generateAvatar('Nick Ducoff'), name: 'Nick Ducoff', tag: '@nickducoff', badge: 'gold', roars: 306 },
-  { rank: 2, avatar: generateAvatar('based16z'), name: 'based16z', tag: '@based16z', badge: 'silver', roars: 232 },
-  { rank: 3, avatar: generateAvatar('Mosi'), name: 'Mosi', tag: '@VannaCharmer', badge: 'bronze', roars: 224 },
-  { rank: 4, avatar: generateAvatar('mary'), name: 'mary', tag: '@howdymerry', roars: 187 },
-  { rank: 5, avatar: generateAvatar('mert helius.dev'), name: 'mert | helius.dev', tag: '@0xMert_', roars: 186 },
-  { rank: 6, avatar: generateAvatar('moon'), name: 'moon', tag: '@MoonOverlord', roars: 158 },
-  { rank: 7, avatar: generateAvatar('Makina'), name: 'Makina', tag: '@makinafi', roars: 149 },
-  { rank: 8, avatar: generateAvatar('Wazz'), name: 'Wazz', tag: '@WazzCrypto', roars: 127 },
-  { rank: 9, avatar: generateAvatar('Noah'), name: 'Noah', tag: '@redacted_noah', roars: 108 },
-  { rank: 10, avatar: generateAvatar('ZenLlama'), name: 'ZenLlama', tag: '@zen_llama', roars: 95 },
-];
-
-const badgeIcons: Record<string, string> = { gold: '🥇', silver: '🥈', bronze: '🥉' };
-
-const posts = [
+const mockPosts: RoarPost[] = [
   {
-    avatar: generateAvatar('based16z'),
-    name: 'based16z',
-    tag: '@based16z',
-    time: '26h',
-    smartFollowers: 3235,
-    lifetimeRoars: 7604,
-    text: `Voici mes retours crypto par année.\nJe parie sur les perps et je m'amuse sur la chaîne, mais la plupart de mes gains viennent de 1 ou 2 paris par an\n\n2020 - Calls Bitcoin OTM sur ledgerx et spot eth\n2021 - Loot NFTs, Solana, Solana Monkey Business NFTs\n2022 - Pas tradé, fini mes études\n2023 - Rollbit, airdrop Blur\n2024 - Hype\n\nLa clé : être patient et attendre les bonnes opportunités.`,
-    showMore: true,
-    likes: 1247,
-    reposts: 89,
-    comments: 156,
-    image: '/chiliRoarBanner.png',
+    id: '1',
+    author: {
+      name: 'Nick Ducoff',
+      handle: '@nickducoff',
+      avatar: generateAvatar('Nick Ducoff'),
+      verified: true,
+      followers: 94936
+    },
+    content: 'Just completed my first PSG FanToken trade! The liquidity is incredible and the community is so active. This is exactly what I was looking for in a FanToken platform. 🚀 #PSG #FanTokens #ChiliRoar',
+    timestamp: '2 hours ago',
+    likes: 324,
+    comments: 45,
+    shares: 12,
+    tags: ['PSG', 'FanTokens', 'ChiliRoar'],
+    fanToken: 'PSG',
+    isLiked: true,
+    isBookmarked: false
   },
   {
-    avatar: generateAvatar('Nick Ducoff'),
-    name: 'Nick Ducoff',
-    tag: '@nickducoff',
-    time: '2h',
-    smartFollowers: 94936,
-    lifetimeRoars: 15420,
-    text: `🚀 ChiliRoar continue de grandir !\n\nLes FanTokens prennent de l'ampleur et la communauté devient de plus en plus active. C'est incroyable de voir l'engagement autour des équipes et des clubs.\n\nQuel est votre FanToken préféré ? ⚽🎮`,
-    showMore: false,
-    likes: 892,
-    reposts: 234,
-    comments: 67,
+    id: '2',
+    author: {
+      name: 'based16z',
+      handle: '@based16z',
+      avatar: generateAvatar('based16z'),
+      verified: false,
+      followers: 9378
+    },
+    content: 'OG token holders, what\'s your take on the recent price action? I think we\'re seeing some healthy consolidation before the next leg up. The fundamentals are still strong. 📈 #OG #Esports #Gaming',
+    timestamp: '4 hours ago',
+    likes: 156,
+    comments: 23,
+    shares: 8,
+    tags: ['OG', 'Esports', 'Gaming'],
+    fanToken: 'OG',
+    isLiked: false,
+    isBookmarked: true
   },
   {
-    avatar: generateAvatar('Mosi'),
-    name: 'Mosi',
-    tag: '@VannaCharmer',
-    time: '5h',
-    smartFollowers: 12724,
-    lifetimeRoars: 8920,
-    text: `Analysant les tendances du marché des FanTokens aujourd'hui. PSG et OG continuent de dominer, mais je vois des mouvements intéressants sur ASR et quelques nouveaux arrivants.\n\nLe sentiment général reste très positif ! 📈`,
-    showMore: false,
+    id: '3',
+    author: {
+      name: 'Mosi',
+      handle: '@VannaCharmer',
+      avatar: generateAvatar('Mosi'),
+      verified: false,
+      followers: 12724
+    },
+    content: 'ASR community is absolutely amazing! The discussions about AS Roma are top-notch and the token utility keeps getting better. Forza Roma! 🔴🟡 #ASR #ASRoma #Football',
+    timestamp: '6 hours ago',
+    likes: 89,
+    comments: 15,
+    shares: 5,
+    tags: ['ASR', 'ASRoma', 'Football'],
+    fanToken: 'ASR',
+    isLiked: true,
+    isBookmarked: false
+  },
+  {
+    id: '4',
+    author: {
+      name: 'mary',
+      handle: '@howdymerry',
+      avatar: generateAvatar('mary'),
+      verified: true,
+      followers: 238711
+    },
+    content: 'New to ChiliRoar? Here\'s my beginner\'s guide to getting started with FanTokens: 1) Connect your wallet 2) Browse available tokens 3) Start with small amounts 4) Join the community discussions. It\'s that simple! 💡 #Beginner #Guide #FanTokens',
+    timestamp: '8 hours ago',
     likes: 567,
-    reposts: 123,
-    comments: 89,
+    comments: 78,
+    shares: 34,
+    tags: ['Beginner', 'Guide', 'FanTokens'],
+    isLiked: false,
+    isBookmarked: false
   },
+  {
+    id: '5',
+    author: {
+      name: 'mert | helius.dev',
+      handle: '@0xMert_',
+      avatar: generateAvatar('mert'),
+      verified: true,
+      followers: 303359
+    },
+    content: 'Technical analysis on PSG FanToken: We\'re seeing a bullish flag pattern forming on the 4H chart. Key resistance at $1.50, support at $1.35. Volume is increasing which is a good sign. 🎯 #TechnicalAnalysis #PSG #Trading',
+    timestamp: '12 hours ago',
+    likes: 234,
+    comments: 41,
+    shares: 18,
+    tags: ['TechnicalAnalysis', 'PSG', 'Trading'],
+    fanToken: 'PSG',
+    isLiked: true,
+    isBookmarked: true
+  },
+  {
+    id: '6',
+    author: {
+      name: 'moon',
+      handle: '@MoonOverlord',
+      avatar: generateAvatar('moon'),
+      verified: false,
+      followers: 1720
+    },
+    content: 'Just discovered the OG community here. The level of discussion about Dota 2 and esports is incredible. Much better than other platforms I\'ve tried. Kudos to the ChiliRoar team! 👏 #OG #Dota2 #Esports',
+    timestamp: '1 day ago',
+    likes: 67,
+    comments: 12,
+    shares: 3,
+    tags: ['OG', 'Dota2', 'Esports'],
+    fanToken: 'OG',
+    isLiked: false,
+    isBookmarked: false
+  }
 ];
-
-function RoarFeedFilters({ active, onChange }: { active: string; onChange: (f: string) => void }) {
-  return (
-    <div className="flex gap-6 border-b border-gray-800 mb-6">
-      {filters.map((f) => (
-        <button
-          key={f}
-          className={`py-3 px-4 text-lg font-semibold border-b-2 transition-colors duration-200 ${
-            active === f 
-              ? 'border-green-400 text-green-300 bg-green-400/10 rounded-t-lg' 
-              : 'border-transparent text-gray-300 hover:text-white hover:bg-gray-800/50 rounded-t-lg'
-          }`}
-          onClick={() => onChange(f)}
-        >
-          {f}
-        </button>
-      ))}
-    </div>
-  );
-}
-
-function TimeFilters({ active, onChange }: { active: string; onChange: (f: string) => void }) {
-  return (
-    <div className="flex gap-2 mb-6">
-      {timeFilters.map((f) => (
-        <button
-          key={f}
-          className={`px-3 py-1 text-sm font-medium rounded-lg transition-colors duration-200 ${
-            active === f 
-              ? 'bg-green-600 text-white' 
-              : 'bg-gray-800 text-gray-300 hover:bg-gray-700 hover:text-white'
-          }`}
-          onClick={() => onChange(f)}
-        >
-          {f}
-        </button>
-      ))}
-    </div>
-  );
-}
-
-function RoarFeedPost({ post }: { post: typeof posts[0] }) {
-  const [showFullText, setShowFullText] = useState(false);
-  const displayText = showFullText ? post.text : post.text.slice(0, 200) + (post.text.length > 200 ? '...' : '');
-
-  return (
-    <div className="bg-gray-900 rounded-xl p-6 mb-6 shadow-lg border border-gray-800 hover:border-gray-700 transition-colors duration-200">
-      <div className="flex items-start gap-3 mb-4">
-        <Avatar src={post.avatar} name={post.name} />
-        <div className="flex-1">
-          <div className="flex items-center gap-2 mb-1">
-            <span className="font-bold text-white">{post.name}</span>
-            <span className="text-gray-400">{post.tag}</span>
-            <span className="text-xs text-gray-500">· {post.time}</span>
-          </div>
-          <div className="text-xs text-gray-400 mb-2">
-            {post.smartFollowers.toLocaleString()} Smart Followers &nbsp; • &nbsp; {post.lifetimeRoars.toLocaleString()} Lifetime Roars
-          </div>
-        </div>
-      </div>
-      
-      <div className="whitespace-pre-line text-gray-200 mb-4 leading-relaxed">
-        {displayText}
-      </div>
-      
-      {post.text.length > 200 && (
-        <button 
-          className="text-green-400 text-sm hover:underline mb-4 transition-colors duration-200"
-          onClick={() => setShowFullText(!showFullText)}
-        >
-          {showFullText ? 'Voir moins' : 'Voir plus'}
-        </button>
-      )}
-      
-      {post.image && (
-        <div className="rounded-xl overflow-hidden mb-4 border border-gray-800 bg-black">
-          <img src={post.image} alt="Post content" className="w-full h-auto" />
-        </div>
-      )}
-      
-      {/* Actions */}
-      <div className="flex items-center gap-6 text-gray-400">
-        <button className="flex items-center gap-2 hover:text-red-400 transition-colors duration-200">
-          <span className="text-lg">❤️</span>
-          <span className="text-sm">{post.likes.toLocaleString()}</span>
-        </button>
-        <button className="flex items-center gap-2 hover:text-green-400 transition-colors duration-200">
-          <span className="text-lg">🔄</span>
-          <span className="text-sm">{post.reposts.toLocaleString()}</span>
-        </button>
-        <button className="flex items-center gap-2 hover:text-blue-400 transition-colors duration-200">
-          <span className="text-lg">💬</span>
-          <span className="text-sm">{post.comments.toLocaleString()}</span>
-        </button>
-        <button className="flex items-center gap-2 hover:text-purple-400 transition-colors duration-200">
-          <span className="text-lg">📤</span>
-          <span className="text-sm">Partager</span>
-        </button>
-      </div>
-    </div>
-  );
-}
-
-function RoarFeedSidebar() {
-  return (
-    <aside className="bg-gray-900 rounded-xl p-6 w-80 ml-8 shadow-lg border border-gray-800 flex flex-col h-fit">
-      <div className="flex items-center justify-between mb-4">
-        <span className="font-bold text-xl text-white">🏆 Top 10 Roars</span>
-        <div className="flex gap-1">
-          <button className="bg-green-600 text-white px-3 py-1 rounded-lg text-xs font-medium">24H</button>
-        </div>
-      </div>
-      
-      <a href="/roars" className="text-green-400 text-sm mb-4 hover:underline transition-colors duration-200">
-        Voir le classement complet &gt;
-      </a>
-      
-      <ol className="space-y-3">
-        {top10.map((roar) => (
-          <li key={roar.rank} className={`flex items-center gap-3 px-3 py-2 rounded-lg transition-colors duration-200 ${
-            roar.badge 
-              ? 'bg-gradient-to-r from-gray-800 to-gray-900 border border-gray-700' 
-              : 'hover:bg-gray-800/50'
-          }`}>
-            <span className={`w-6 text-center font-bold text-lg ${
-              roar.badge === 'gold' ? 'text-yellow-300' : 
-              roar.badge === 'silver' ? 'text-gray-300' : 
-              roar.badge === 'bronze' ? 'text-orange-400' : 'text-gray-400'
-            }`}>
-              {roar.badge ? badgeIcons[roar.badge] : `#${roar.rank}`}
-            </span>
-            <Avatar src={roar.avatar} name={roar.name} size="w-8 h-8" />
-            <div className="flex-1 min-w-0">
-              <div className="text-white font-semibold text-sm truncate">{roar.name}</div>
-              <div className="text-xs text-gray-400 truncate">{roar.tag}</div>
-            </div>
-            <div className="text-xs text-green-400 font-medium">{roar.roars}</div>
-          </li>
-        ))}
-      </ol>
-      
-      {/* Statistiques rapides */}
-      <div className="mt-6 pt-4 border-t border-gray-800">
-        <h3 className="font-semibold text-white mb-3">📊 Statistiques</h3>
-        <div className="space-y-2 text-sm">
-          <div className="flex justify-between">
-            <span className="text-gray-400">Total Roars</span>
-            <span className="text-white font-medium">1,847</span>
-          </div>
-          <div className="flex justify-between">
-            <span className="text-gray-400">Créateurs actifs</span>
-            <span className="text-white font-medium">156</span>
-          </div>
-          <div className="flex justify-between">
-            <span className="text-gray-400">Engagement moyen</span>
-            <span className="text-green-400 font-medium">8.2%</span>
-          </div>
-        </div>
-      </div>
-    </aside>
-  );
-}
 
 export default function RoarFeedsPage() {
-  const [activeFilter, setActiveFilter] = useState(filters[0]);
-  const [activeTime, setActiveTime] = useState(timeFilters[0]);
+  const [selectedFilter, setSelectedFilter] = useState<'all' | 'PSG' | 'OG' | 'ASR' | 'trending'>('all');
+  const [searchTerm, setSearchTerm] = useState('');
+
+  const filteredPosts = mockPosts.filter(post => {
+    const matchesFilter = selectedFilter === 'all' || 
+                         selectedFilter === 'trending' || 
+                         post.fanToken === selectedFilter;
+    const matchesSearch = post.content.toLowerCase().includes(searchTerm.toLowerCase()) ||
+                         post.author.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
+                         post.tags.some(tag => tag.toLowerCase().includes(searchTerm.toLowerCase()));
+    
+    if (selectedFilter === 'trending') {
+      return matchesSearch && post.likes > 200;
+    }
+    
+    return matchesFilter && matchesSearch;
+  });
+
+  const handleLike = (postId: string) => {
+    // In a real app, this would update the backend
+    console.log('Liked post:', postId);
+  };
+
+  const handleBookmark = (postId: string) => {
+    // In a real app, this would update the backend
+    console.log('Bookmarked post:', postId);
+  };
+
+  const formatNumber = (num: number) => {
+    if (num >= 1000000) return (num / 1000000).toFixed(1) + 'M';
+    if (num >= 1000) return (num / 1000).toFixed(1) + 'K';
+    return num.toString();
+  };
 
   return (
     <div className="flex min-h-screen">
       <Sidebar />
       <main className="flex-1 p-8">
-        {/* Header avec statistiques */}
         <div className="mb-8">
-          <h1 className="text-3xl font-bold text-cyan-300 mb-2">🦁 Roar Feeds</h1>
-          <p className="text-gray-400 mb-6">
-            Restez proche de là où l'attention se concentre sur ChiliRoar
+          <h1 className="text-3xl font-bold text-white mb-2 flex items-center">
+            <img src="/Roar.png" alt="Roar Feeds" className="w-8 h-8 mr-3" />
+            Roar Feeds
+          </h1>
+          <p className="text-gray-300 mb-6">
+            Discover the latest content, discussions, and insights from the ChiliRoar community
           </p>
-          
-          {/* Statistiques générales */}
-          <div className="grid grid-cols-1 md:grid-cols-4 gap-4 mb-6">
-            <div className="bg-gradient-to-r from-cyan-900/50 to-blue-900/50 rounded-xl p-4 border border-cyan-500/20">
-              <div className="text-2xl font-bold text-white">{posts.length}</div>
-              <div className="text-sm text-gray-300">Posts Aujourd'hui</div>
+        </div>
+
+        {/* Filters */}
+        <div className="bg-gray-900 rounded-xl p-4 mb-6">
+          <div className="flex flex-col md:flex-row gap-4">
+            <div className="flex gap-2">
+              <span className="text-gray-300 text-sm font-medium flex items-center">Filter:</span>
+              {(['all', 'trending', 'PSG', 'OG', 'ASR'] as const).map(filter => (
+                <button
+                  key={filter}
+                  onClick={() => setSelectedFilter(filter)}
+                  className={`px-3 py-1 rounded-lg text-sm font-medium transition-colors ${
+                    selectedFilter === filter
+                      ? 'bg-green-600 text-white'
+                      : 'bg-gray-800 text-gray-300 hover:bg-gray-700'
+                  }`}
+                >
+                  {filter === 'all' ? 'All Posts' :
+                   filter === 'trending' ? 'Trending' : filter}
+                </button>
+              ))}
             </div>
-            <div className="bg-gradient-to-r from-green-900/50 to-emerald-900/50 rounded-xl p-4 border border-green-500/20">
-              <div className="text-2xl font-bold text-white">2.4K</div>
-              <div className="text-sm text-gray-300">Total Likes</div>
-            </div>
-            <div className="bg-gradient-to-r from-purple-900/50 to-pink-900/50 rounded-xl p-4 border border-purple-500/20">
-              <div className="text-2xl font-bold text-white">456</div>
-              <div className="text-sm text-gray-300">Reposts</div>
-            </div>
-            <div className="bg-gradient-to-r from-orange-900/50 to-red-900/50 rounded-xl p-4 border border-orange-500/20">
-              <div className="text-2xl font-bold text-white">312</div>
-              <div className="text-sm text-gray-300">Commentaires</div>
+            <div className="flex-1">
+              <input
+                type="text"
+                placeholder="Search posts, users, or tags..."
+                value={searchTerm}
+                onChange={(e) => setSearchTerm(e.target.value)}
+                className="w-full px-4 py-2 bg-gray-800 border border-gray-700 rounded-lg text-white placeholder-gray-400 focus:outline-none focus:border-green-400"
+              />
             </div>
           </div>
         </div>
 
-        <div className="flex gap-8">
-          <div className="flex-1">
-            <RoarFeedFilters active={activeFilter} onChange={setActiveFilter} />
-            <TimeFilters active={activeTime} onChange={setActiveTime} />
-            {posts.map((post, i) => (
-              <RoarFeedPost key={i} post={post} />
-            ))}
-          </div>
-          <RoarFeedSidebar />
+        {/* Posts */}
+        <div className="space-y-6">
+          {filteredPosts.map(post => (
+            <div key={post.id} className="bg-gray-900 rounded-xl p-6 border border-gray-800">
+              {/* Post Header */}
+              <div className="flex items-start justify-between mb-4">
+                <div className="flex items-center">
+                  <img 
+                    src={post.author.avatar} 
+                    alt={post.author.name}
+                    className="w-12 h-12 rounded-full mr-3"
+                  />
+                  <div>
+                    <div className="flex items-center gap-2">
+                      <h3 className="font-semibold text-white">{post.author.name}</h3>
+                      {post.author.verified && (
+                        <img src="/trophy.png" alt="Verified" className="w-4 h-4" />
+                      )}
+                    </div>
+                    <p className="text-sm text-gray-400">{post.author.handle}</p>
+                    <p className="text-xs text-gray-500">{formatNumber(post.author.followers)} followers</p>
+                  </div>
+                </div>
+                <div className="flex items-center gap-2">
+                  {post.fanToken && (
+                    <span className="px-2 py-1 bg-gray-800 text-xs text-gray-300 rounded-full">
+                      {post.fanToken}
+                    </span>
+                  )}
+                  <span className="text-sm text-gray-500">{post.timestamp}</span>
+                </div>
+              </div>
+
+              {/* Post Content */}
+              <div className="mb-4">
+                <p className="text-white mb-3">{post.content}</p>
+                {post.image && (
+                  <img 
+                    src={post.image} 
+                    alt="Post content"
+                    className="w-full rounded-lg mb-3"
+                  />
+                )}
+                <div className="flex flex-wrap gap-2">
+                  {post.tags.map(tag => (
+                    <span 
+                      key={tag}
+                      className="px-2 py-1 bg-gray-800 text-xs text-gray-300 rounded-full hover:bg-gray-700 cursor-pointer"
+                    >
+                      #{tag}
+                    </span>
+                  ))}
+                </div>
+              </div>
+
+              {/* Post Actions */}
+              <div className="flex items-center justify-between pt-4 border-t border-gray-800">
+                <div className="flex items-center gap-6">
+                  <button
+                    onClick={() => handleLike(post.id)}
+                    className={`flex items-center gap-2 text-sm transition-colors ${
+                      post.isLiked ? 'text-red-400' : 'text-gray-400 hover:text-red-400'
+                    }`}
+                  >
+                    <img src="/Roar.png" alt="Like" className="w-4 h-4" />
+                    {formatNumber(post.likes)}
+                  </button>
+                  <button className="flex items-center gap-2 text-sm text-gray-400 hover:text-blue-400 transition-colors">
+                    <img src="/leaderboard.png" alt="Comment" className="w-4 h-4" />
+                    {formatNumber(post.comments)}
+                  </button>
+                  <button className="flex items-center gap-2 text-sm text-gray-400 hover:text-green-400 transition-colors">
+                    <img src="/airdrop.png" alt="Share" className="w-4 h-4" />
+                    {formatNumber(post.shares)}
+                  </button>
+                </div>
+                <button
+                  onClick={() => handleBookmark(post.id)}
+                  className={`text-sm transition-colors ${
+                    post.isBookmarked ? 'text-yellow-400' : 'text-gray-400 hover:text-yellow-400'
+                  }`}
+                >
+                  <img src="/price.png" alt="Bookmark" className="w-4 h-4" />
+                </button>
+              </div>
+            </div>
+          ))}
         </div>
+
+        {filteredPosts.length === 0 && (
+          <div className="text-center py-12">
+            <img src="/Roar.png" alt="No posts" className="w-16 h-16 mx-auto mb-4 opacity-50" />
+            <p className="text-gray-400 text-lg">No posts found matching your criteria</p>
+            <button
+              onClick={() => {
+                setSelectedFilter('all');
+                setSearchTerm('');
+              }}
+              className="mt-4 px-6 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 transition-colors"
+            >
+              Clear filters
+            </button>
+          </div>
+        )}
       </main>
     </div>
   );

@@ -6,13 +6,13 @@ import LeaderboardTable, { LeaderboardRow } from '../../components/LeaderboardTa
 import LeaderboardPagination from '../../components/LeaderboardPagination';
 import Sidebar from '../../components/Sidebar';
 
-// Fonction pour générer des avatars avec DiceBear
+// Function to generate avatars with DiceBear
 const generateAvatar = (name: string, style: 'adventurer' | 'avataaars' | 'big-ears' | 'bottts' | 'croodles' | 'fun-emoji' = 'adventurer') => {
   const seed = name.toLowerCase().replace(/[^a-z0-9]/g, '');
   return `https://api.dicebear.com/7.x/${style}/svg?seed=${seed}`;
 };
 
-// Fonction pour obtenir les initiales d'un nom
+// Function to get initials from a name
 const getInitials = (name: string) => {
   return name
     .split(' ')
@@ -189,7 +189,7 @@ export default function RoarsPage() {
   const [activeTime, setActiveTime] = useState('24H');
   const [page, setPage] = useState(1);
 
-  // Calculer les statistiques
+  // Calculate statistics
   const totalRoars = mockRows.reduce((sum, row) => sum + (typeof row.roars === 'number' ? row.roars : 0), 0);
   const totalFollowers = mockRows.reduce((sum, row) => sum + (typeof row.followers === 'number' ? row.followers : 0), 0);
   const avgSmartPercent = mockRows
@@ -201,19 +201,22 @@ export default function RoarsPage() {
     <div className="flex min-h-screen">
       <Sidebar />
       <main className="flex-1 p-8">
-        {/* Header avec statistiques */}
+        {/* Header with statistics */}
         <div className="mb-8">
-          <h1 className="text-3xl font-bold text-white mb-2">🦁 Roars Leaderboard</h1>
+          <h1 className="text-3xl font-bold text-white mb-2 flex items-center">
+            <img src="/Roar.png" alt="Roars" className="w-8 h-8 mr-3" />
+            Roars Leaderboard
+          </h1>
           <p className="text-gray-300 mb-6">
-            Découvrez les meilleurs créateurs et contenus sur ChiliRoar. 
-            <a href="/roar-feeds" className="text-green-400 hover:underline ml-2">Voir les Roar Feeds &gt;</a>
+            Discover the best creators and content on ChiliRoar. 
+            <a href="/roar-feeds" className="text-green-400 hover:underline ml-2">View Roar Feeds &gt;</a>
           </p>
           
-          {/* Statistiques générales */}
+          {/* General statistics */}
           <div className="grid grid-cols-1 md:grid-cols-4 gap-4 mb-6">
             <div className="bg-gradient-to-r from-purple-900/50 to-blue-900/50 rounded-xl p-4 border border-purple-500/20">
               <div className="text-2xl font-bold text-white">{mockRows.length}</div>
-              <div className="text-sm text-gray-300">Top Créateurs</div>
+              <div className="text-sm text-gray-300">Top Creators</div>
             </div>
             <div className="bg-gradient-to-r from-green-900/50 to-emerald-900/50 rounded-xl p-4 border border-green-500/20">
               <div className="text-2xl font-bold text-white">{totalRoars.toLocaleString()}</div>
@@ -221,16 +224,16 @@ export default function RoarsPage() {
             </div>
             <div className="bg-gradient-to-r from-blue-900/50 to-cyan-900/50 rounded-xl p-4 border border-blue-500/20">
               <div className="text-2xl font-bold text-white">{totalFollowers.toLocaleString()}</div>
-              <div className="text-sm text-gray-300">Followers Totaux</div>
+              <div className="text-sm text-gray-300">Total Followers</div>
             </div>
             <div className="bg-gradient-to-r from-orange-900/50 to-red-900/50 rounded-xl p-4 border border-orange-500/20">
               <div className="text-2xl font-bold text-white">{avgSmartPercent.toFixed(1)}%</div>
-              <div className="text-sm text-gray-300">Smart % Moyen</div>
+              <div className="text-sm text-gray-300">Average Smart %</div>
             </div>
           </div>
         </div>
 
-        {/* Filtres */}
+        {/* Filters */}
         <div className="bg-gray-900 rounded-xl p-4 mb-6">
           <div className="flex flex-col md:flex-row gap-4 items-center justify-between">
             <div className="flex gap-2">
@@ -242,7 +245,7 @@ export default function RoarsPage() {
           </div>
         </div>
 
-        {/* Tableau */}
+        {/* Table */}
         <div className="mb-6">
           <LeaderboardTable rows={mockRows} />
         </div>
@@ -250,8 +253,9 @@ export default function RoarsPage() {
         {/* Pagination */}
         <div className="flex justify-between items-center">
           <LeaderboardPagination current={page} total={25} onChange={setPage} />
-          <p className="text-xs text-gray-500">
-            📊 Données mises à jour quotidiennement. Arrondies au nombre entier le plus proche.
+          <p className="text-xs text-gray-500 flex items-center">
+            <img src="/leaderboard.png" alt="Data" className="w-4 h-4 mr-2" />
+            Data updated daily. Rounded to the nearest whole number.
           </p>
         </div>
       </main>

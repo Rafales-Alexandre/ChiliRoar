@@ -13,11 +13,11 @@ import { HistoryPeriod } from '../types';
 const treemapTickers = ['OG','ASR','PSG','GAL','BAR','JUV','CITY','ATM','ACM','INTER','SPURS','EFC'];
 const PERIODS: { label: string; value: HistoryPeriod }[] = [
   { label: '24H', value: '24h' },
-  { label: '7J', value: '7d' },
-  { label: '30J', value: '30d' },
+  { label: '7D', value: '7d' },
+  { label: '30D', value: '30d' },
   { label: '3M', value: '90d' },
   { label: '6M', value: '180d' },
-  { label: '1A', value: '1y' },
+  { label: '1Y', value: '1y' },
 ];
 
 export default function Dashboard() {
@@ -26,7 +26,7 @@ export default function Dashboard() {
   const { data: marketData, loading } = useFanTokenMarketData(treemapTickers);
   const { data: historyData, loading: loadingHistory } = useFanTokenHistory(treemapTickers, period);
 
-  // Top FanTokens Gainers (variation 24h)
+  // Top FanTokens Gainers (24h variation)
   const topGainers = [
     { name: 'OG', value: marketData['OG']?.change24h !== undefined ? `${marketData['OG'].change24h.toFixed(2)}%` : '15.2%', delta: '+1520bps', color: 'bg-purple-600', variation: marketData['OG']?.change24h },
     { name: 'ASR', value: marketData['ASR']?.change24h !== undefined ? `${marketData['ASR'].change24h.toFixed(2)}%` : '12.8%', delta: '+1280bps', color: 'bg-red-600', variation: marketData['ASR']?.change24h },
@@ -40,14 +40,14 @@ export default function Dashboard() {
     { name: 'INTER', value: marketData['INTER']?.change24h !== undefined ? `${marketData['INTER'].change24h.toFixed(2)}%` : '1.5%', delta: '+150bps', color: 'bg-blue-600', variation: marketData['INTER']?.change24h },
   ];
 
-  // Top FanTokens Losers (variation 24h)
+  // Top FanTokens Losers (24h variation)
   const topLosers = [
     { name: 'SPURS', value: marketData['SPURS']?.change24h !== undefined ? `${marketData['SPURS'].change24h.toFixed(2)}%` : '3.2%', delta: '-320bps', color: 'bg-white', variation: marketData['SPURS']?.change24h },
     { name: 'EFC', value: marketData['EFC']?.change24h !== undefined ? `${marketData['EFC'].change24h.toFixed(2)}%` : '2.8%', delta: '-280bps', color: 'bg-blue-600', variation: marketData['EFC']?.change24h },
     { name: 'LUFC', value: marketData['LUFC']?.change24h !== undefined ? `${marketData['LUFC'].change24h.toFixed(2)}%` : '2.1%', delta: '-210bps', color: 'bg-yellow-500', variation: marketData['LUFC']?.change24h },
   ];
 
-  // Top Roars Performers (basé sur les données des Roars)
+  // Top Roars Performers (based on Roars data)
   const topRoars = [
     { name: 'Nick Ducoff', value: '306', delta: '+45', color: 'bg-yellow-500' },
     { name: 'based16z', value: '232', delta: '+32', color: 'bg-gray-400' },
@@ -61,7 +61,7 @@ export default function Dashboard() {
     { name: 'Taiki', value: '104', delta: '+7', color: 'bg-blue-600' },
   ];
 
-  // Données pour le Treemap (variation 24h + prix en petit + historique)
+  // Data for Treemap (24h variation + price in small + history)
   const treemapData = treemapTickers.map(ticker => ({
     name: ticker,
     value: marketData[ticker]?.change24h ?? 0,
@@ -109,22 +109,25 @@ export default function Dashboard() {
       <Sidebar />
       <main className="flex-1 p-8">
         <Header />
-        {/* Section FanTokens */}
+        {/* FanTokens Section */}
         <div className="mb-8">
           <FanTokenStats />
         </div>
         <div className="flex gap-8">
-          {/* Colonne gauche */}
+          {/* Left column */}
           <div className="w-1/3">
-            <h2 className="text-xl font-bold mb-4 text-white">🏆 ChiliRoar Arena</h2>
+            <h2 className="text-xl font-bold mb-4 text-white flex items-center">
+              <img src="/trophy.png" alt="Arena" className="w-6 h-6 mr-2" />
+              ChiliRoar Arena
+            </h2>
             <TableSection title="Top FanTokens" data={topGainers} positive={true} />
             <TableSection title="Top Roars" data={topRoars} positive={true} />
-            <TableSection title="FanTokens en baisse" data={topLosers} positive={false} />
+            <TableSection title="Declining FanTokens" data={topLosers} positive={false} />
           </div>
-          {/* Colonne droite */}
+          {/* Right column */}
           <div className="flex-1">
             <div className="flex items-center justify-between mb-4">
-              <div className="text-lg font-semibold text-white">FanTokens par Popularité &gt; Performance &gt; Volume</div>
+              <div className="text-lg font-semibold text-white">FanTokens by Popularity &gt; Performance &gt; Volume</div>
               <div className="flex gap-2">
                 {PERIODS.map(p => (
                   <button

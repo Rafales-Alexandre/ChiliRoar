@@ -9,19 +9,18 @@ const inter = Inter({ subsets: ['latin'] })
 
 export const metadata: Metadata = {
   title: 'ChiliRoar - FanTokens Arena',
-  description: 'La plateforme ultime pour les FanTokens, les Roars et l\'engagement communautaire',
+  description: 'The ultimate platform for FanTokens, Roars and community engagement',
 }
+
+const allTickers = fanTokens.map(token => token.ticker);
 
 export default function RootLayout({
   children,
 }: {
   children: React.ReactNode
 }) {
-  // Extraire tous les tickers des FanTokens
-  const allTickers = fanTokens.map(token => token.ticker);
-
   return (
-    <html lang="fr">
+    <html lang="en">
       <body className={`${inter.className} bg-gray-950`}>
         <WalletProvider>
           <FanTokenDataProvider tickers={allTickers}>

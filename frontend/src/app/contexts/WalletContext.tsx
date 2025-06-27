@@ -32,12 +32,12 @@ export function WalletProvider({ children }: WalletProviderProps) {
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
-  // Vérifier si MetaMask est installé
+  // Check if MetaMask is installed
   const checkIfMetaMaskInstalled = () => {
     return typeof window !== 'undefined' && typeof window.ethereum !== 'undefined';
   };
 
-  // Vérifier si l'utilisateur est déjà connecté
+  // Check if user is already connected
   useEffect(() => {
     const checkConnection = async () => {
       if (checkIfMetaMaskInstalled()) {
@@ -51,7 +51,7 @@ export function WalletProvider({ children }: WalletProviderProps) {
             setChainId(chainId);
           }
         } catch (err) {
-          console.error('Erreur lors de la vérification de connexion:', err);
+          console.error('Error checking connection:', err);
         }
       }
     };
@@ -59,17 +59,17 @@ export function WalletProvider({ children }: WalletProviderProps) {
     checkConnection();
   }, []);
 
-  // Écouter les changements de compte
+  // Listen for account changes
   useEffect(() => {
     if (checkIfMetaMaskInstalled()) {
       const handleAccountsChanged = (accounts: string[]) => {
         if (accounts.length === 0) {
-          // L'utilisateur s'est déconnecté
+          // User disconnected
           setIsConnected(false);
           setAccount(null);
           setChainId(null);
         } else {
-          // L'utilisateur a changé de compte
+          // User changed account
           setAccount(accounts[0]);
           setIsConnected(true);
         }
@@ -77,7 +77,7 @@ export function WalletProvider({ children }: WalletProviderProps) {
 
       const handleChainChanged = (chainId: string) => {
         setChainId(chainId);
-        // Recharger la page pour éviter les problèmes de cache
+        // Reload page to avoid cache issues
         window.location.reload();
       };
 
@@ -97,10 +97,10 @@ export function WalletProvider({ children }: WalletProviderProps) {
 
     try {
       if (!checkIfMetaMaskInstalled()) {
-        throw new Error('MetaMask n\'est pas installé. Veuillez installer MetaMask pour continuer.');
+        throw new Error('MetaMask is not installed. Please install MetaMask to continue.');
       }
 
-      // Demander la connexion
+      // Request connection
       const accounts = await window.ethereum.request({
         method: 'eth_requestAccounts',
       });
@@ -109,21 +109,21 @@ export function WalletProvider({ children }: WalletProviderProps) {
         setAccount(accounts[0]);
         setIsConnected(true);
 
-        // Obtenir l'ID de la chaîne
+        // Get chain ID
         const chainId = await window.ethereum.request({ method: 'eth_chainId' });
         setChainId(chainId);
 
-        console.log('Connexion réussie:', accounts[0]);
+        console.log('Connection successful:', accounts[0]);
       }
     } catch (err: any) {
-      console.error('Erreur de connexion:', err);
+      console.error('Connection error:', err);
       
       if (err.code === 4001) {
-        setError('Connexion annulée par l\'utilisateur');
+        setError('Connection cancelled by user');
       } else if (err.code === -32002) {
-        setError('Veuillez débloquer MetaMask et réessayer');
+        setError('Please unlock MetaMask and try again');
       } else {
-        setError(err.message || 'Erreur lors de la connexion');
+        setError(err.message || 'Error during connection');
       }
     } finally {
       setIsLoading(false);

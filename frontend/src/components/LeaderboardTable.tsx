@@ -19,9 +19,9 @@ interface LeaderboardTableProps {
 }
 
 const badgeIcons = {
-  gold: '🥇',
-  silver: '🥈',
-  bronze: '🥉',
+  gold: '/gold.png',
+  silver: '/silver.png',
+  bronze: '/bronze.png',
 };
 
 // Fonction pour obtenir les initiales d'un nom
@@ -92,7 +92,11 @@ export default function LeaderboardTable({ rows }: LeaderboardTableProps) {
             >
               <td className="px-6 py-4 font-bold">
                 {row.badge ? (
-                  <span className="text-2xl">{badgeIcons[row.badge]}</span>
+                  <img 
+                    src={badgeIcons[row.badge]} 
+                    alt={`${row.badge} medal`}
+                    className="w-6 h-6"
+                  />
                 ) : (
                   <span className="text-gray-300">#{row.rank}</span>
                 )}

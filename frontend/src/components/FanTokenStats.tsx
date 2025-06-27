@@ -10,7 +10,10 @@ export default function FanTokenStats() {
 
   return (
     <div className="bg-gray-900 rounded-xl p-6">
-      <h2 className="text-xl font-bold text-white mb-4">🏆 FanTokens Overview</h2>
+      <h2 className="text-xl font-bold text-white mb-4 flex items-center">
+        <img src="/trophy.png" alt="Trophy" className="w-6 h-6 mr-2" />
+        FanTokens Overview
+      </h2>
       
       {/* Statistiques générales */}
       <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-6">
@@ -24,17 +27,26 @@ export default function FanTokenStats() {
         </div>
         <div className="bg-gray-800 rounded-lg p-4 text-center">
           <div className="text-2xl font-bold text-blue-400">{footballTokens}</div>
-          <div className="text-sm text-gray-400">⚽ Football</div>
+          <div className="text-sm text-gray-400 flex items-center justify-center">
+            <img src="/trophy.png" alt="Football" className="w-4 h-4 mr-1" />
+            Football
+          </div>
         </div>
         <div className="bg-gray-800 rounded-lg p-4 text-center">
           <div className="text-2xl font-bold text-purple-400">{esportsTokens + f1Tokens}</div>
-          <div className="text-sm text-gray-400">🎮 Esports & F1</div>
+          <div className="text-sm text-gray-400 flex items-center justify-center">
+            <img src="/arena.png" alt="Esports" className="w-4 h-4 mr-1" />
+            Esports & F1
+          </div>
         </div>
       </div>
 
       {/* Top 3 FanTokens */}
       <div>
-        <h3 className="text-lg font-semibold text-white mb-3">🔥 Top 3 FanTokens</h3>
+        <h3 className="text-lg font-semibold text-white mb-3 flex items-center">
+          <img src="/flame.png" alt="Top" className="w-5 h-5 mr-2" />
+          Top 3 FanTokens
+        </h3>
         <div className="space-y-3">
           {topTokens.map((token, index) => {
             const isOG = token.ticker === 'OG';
@@ -73,8 +85,12 @@ export default function FanTokenStats() {
                   <div className="absolute inset-0 bg-gradient-to-r from-purple-900/60 to-blue-900/60"></div>
                 )}
                 <div className="flex items-center gap-3 relative z-10">
-                  <div className="text-lg">
-                    {index === 0 ? '🥇' : index === 1 ? '🥈' : '🥉'}
+                  <div className="flex items-center">
+                    <img 
+                      src={index === 0 ? '/gold.png' : index === 1 ? '/silver.png' : '/bronze.png'} 
+                      alt={`Rank ${index + 1}`}
+                      className="w-6 h-6"
+                    />
                   </div>
                   <div>
                     <div className="font-semibold text-white">{token.ticker}</div>
