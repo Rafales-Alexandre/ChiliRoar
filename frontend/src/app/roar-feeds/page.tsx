@@ -1,7 +1,7 @@
 "use client";
 import React, { useState } from 'react';
 
-const filters = ['Top Yappers', 'Emerging Yappers'];
+const filters = ['Top Roars', 'Emerging Roars'];
 const top10 = [
   { rank: 1, avatar: '/avatars/nick.png', name: 'Nick Ducoff', tag: '@nickducoff', badge: 'gold' },
   { rank: 2, avatar: '/avatars/based16z.png', name: 'based16z', tag: '@based16z', badge: 'silver' },
@@ -23,14 +23,14 @@ const posts = [
     tag: '@based16z',
     time: '26h',
     smartFollowers: 3235,
-    lifetimeYaps: 7604,
+    lifetimeRoars: 7604,
     text: `Here's my crypto returns by year.\nI do gamble on perps and mess around on chain but p much all my returns is from 1 or 2 bets every year\n\n2020 - OTM bitcoin calls on ledgerx and spot eth\n2021 - loot NFTs, solana, solana monkey business NFTs\n2022 - didn't trade, finished college\n2023 - rollbit, blur airdrop\n2024 - hype\n...`,
     showMore: true,
     image: '/images/table-mock.png',
   },
 ];
 
-function YapperFeedFilters({ active, onChange }: { active: string; onChange: (f: string) => void }) {
+function RoarFeedFilters({ active, onChange }: { active: string; onChange: (f: string) => void }) {
   return (
     <div className="flex gap-6 border-b border-gray-800 mb-6">
       {filters.map((f) => (
@@ -46,7 +46,7 @@ function YapperFeedFilters({ active, onChange }: { active: string; onChange: (f:
   );
 }
 
-function YapperFeedPost({ post }: { post: typeof posts[0] }) {
+function RoarFeedPost({ post }: { post: typeof posts[0] }) {
   return (
     <div className="bg-gray-900 rounded-xl p-6 mb-6 shadow max-w-2xl">
       <div className="flex items-center gap-3 mb-2">
@@ -58,7 +58,7 @@ function YapperFeedPost({ post }: { post: typeof posts[0] }) {
             <span className="text-xs text-gray-500">· {post.time}</span>
           </div>
           <div className="text-xs text-gray-400">
-            {post.smartFollowers.toLocaleString()} Smart Followers &nbsp; {post.lifetimeYaps.toLocaleString()} Lifetime Yaps
+            {post.smartFollowers.toLocaleString()} Smart Followers &nbsp; {post.lifetimeRoars.toLocaleString()} Lifetime Roars
           </div>
         </div>
       </div>
@@ -73,21 +73,21 @@ function YapperFeedPost({ post }: { post: typeof posts[0] }) {
   );
 }
 
-function YapperFeedSidebar() {
+function RoarFeedSidebar() {
   return (
     <aside className="bg-gray-900 rounded-xl p-4 w-80 ml-8 shadow flex flex-col">
       <div className="flex items-center justify-between mb-2">
-        <span className="font-bold text-lg text-white">Top 10 Yappers</span>
+        <span className="font-bold text-lg text-white">Top 10 Roars</span>
         <button className="bg-gray-800 text-green-400 px-3 py-1 rounded text-xs">24H</button>
       </div>
-      <a href="#" className="text-green-400 text-xs mb-2 hover:underline">See full Yaps ranking &gt;</a>
+      <a href="#" className="text-green-400 text-xs mb-2 hover:underline">See full Roars ranking &gt;</a>
       <ol className="space-y-2">
-        {top10.map((yapper) => (
-          <li key={yapper.rank} className={`flex items-center gap-2 px-2 py-1 rounded ${yapper.badge ? 'bg-gradient-to-r from-gray-800 to-gray-900' : ''}`}>
-            <span className={`w-6 text-center font-bold ${yapper.badge === 'gold' ? 'text-yellow-300' : yapper.badge === 'silver' ? 'text-gray-300' : yapper.badge === 'bronze' ? 'text-orange-400' : 'text-gray-400'}`}>{yapper.badge ? badgeIcons[yapper.badge] : yapper.rank}</span>
-            <img src={yapper.avatar} alt={yapper.name} className="w-7 h-7 rounded-full border border-gray-700" />
-            <span className="text-white font-semibold text-sm truncate">{yapper.name}</span>
-            <span className="text-xs text-gray-400 truncate">{yapper.tag}</span>
+        {top10.map((roar) => (
+          <li key={roar.rank} className={`flex items-center gap-2 px-2 py-1 rounded ${roar.badge ? 'bg-gradient-to-r from-gray-800 to-gray-900' : ''}`}>
+            <span className={`w-6 text-center font-bold ${roar.badge === 'gold' ? 'text-yellow-300' : roar.badge === 'silver' ? 'text-gray-300' : roar.badge === 'bronze' ? 'text-orange-400' : 'text-gray-400'}`}>{roar.badge ? badgeIcons[roar.badge] : roar.rank}</span>
+            <img src={roar.avatar} alt={roar.name} className="w-7 h-7 rounded-full border border-gray-700" />
+            <span className="text-white font-semibold text-sm truncate">{roar.name}</span>
+            <span className="text-xs text-gray-400 truncate">{roar.tag}</span>
           </li>
         ))}
       </ol>
@@ -95,20 +95,20 @@ function YapperFeedSidebar() {
   );
 }
 
-export default function YapperFeedsPage() {
+export default function RoarFeedsPage() {
   const [activeFilter, setActiveFilter] = useState(filters[0]);
   return (
     <div className="p-8 flex flex-col min-h-screen">
-      <h1 className="text-3xl font-bold text-cyan-300 mb-1">Yapper Feeds</h1>
+      <h1 className="text-3xl font-bold text-cyan-300 mb-1">Roar Feeds</h1>
       <p className="text-gray-400 mb-6">Stay Close to Where Attention Flows on CT</p>
       <div className="flex flex-1 gap-8">
         <div className="flex-1">
-          <YapperFeedFilters active={activeFilter} onChange={setActiveFilter} />
+          <RoarFeedFilters active={activeFilter} onChange={setActiveFilter} />
           {posts.map((post, i) => (
-            <YapperFeedPost key={i} post={post} />
+            <RoarFeedPost key={i} post={post} />
           ))}
         </div>
-        <YapperFeedSidebar />
+        <RoarFeedSidebar />
       </div>
     </div>
   );

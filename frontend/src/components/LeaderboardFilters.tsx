@@ -6,7 +6,7 @@ interface LeaderboardFiltersProps {
 }
 
 const filters = [
-  'Top Yappers',
+  'Top Roars',
   'Emerging',
   'Chinese',
   'Korean',

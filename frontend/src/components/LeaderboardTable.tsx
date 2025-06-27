@@ -6,9 +6,9 @@ export interface LeaderboardRow {
   name: string;
   tag?: string;
   badge?: 'gold' | 'silver' | 'bronze';
-  yaps?: number | string;
-  earnedYaps?: number | string;
-  referralYaps?: number | string;
+  roars?: number | string;
+  earnedRoars?: number | string;
+  referralRoars?: number | string;
   smartFollowers?: number | string;
   followers?: number | string;
   smartPercent?: number | string;
@@ -32,9 +32,9 @@ export default function LeaderboardTable({ rows }: LeaderboardTableProps) {
           <tr>
             <th className="px-4 py-2">Rank</th>
             <th className="px-4 py-2">Name</th>
-            <th className="px-4 py-2">Total Yaps</th>
-            <th className="px-4 py-2">Earned Yaps</th>
-            <th className="px-4 py-2">Referral Yaps</th>
+            <th className="px-4 py-2">Total Roars</th>
+            <th className="px-4 py-2">Earned Roars</th>
+            <th className="px-4 py-2">Referral Roars</th>
             <th className="px-4 py-2">Smart Followers</th>
             <th className="px-4 py-2">Followers</th>
             <th className="px-4 py-2">Smart %</th>
@@ -53,9 +53,9 @@ export default function LeaderboardTable({ rows }: LeaderboardTableProps) {
                 <span className="font-semibold text-white">{row.name}</span>
                 {row.tag && <span className="text-xs text-gray-400">{row.tag}</span>}
               </td>
-              <td className="px-4 py-2">{row.yaps ?? '-'}</td>
-              <td className="px-4 py-2">{row.earnedYaps ?? '-'}</td>
-              <td className="px-4 py-2">{row.referralYaps ?? '-'}</td>
+              <td className="px-4 py-2">{row.roars ?? '-'}</td>
+              <td className="px-4 py-2">{row.earnedRoars ?? '-'}</td>
+              <td className="px-4 py-2">{row.referralRoars ?? '-'}</td>
               <td className="px-4 py-2">{row.smartFollowers ?? '-'}</td>
               <td className="px-4 py-2">{row.followers ?? '-'}</td>
               <td className="px-4 py-2">{row.smartPercent ?? '-'}</td>

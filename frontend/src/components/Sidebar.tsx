@@ -5,8 +5,8 @@ export default function Sidebar() {
   return (
     <aside className="bg-gray-900 text-white w-56 min-h-screen flex flex-col p-4">
       <div className="flex items-center mb-8">
-        <span className="font-bold text-xl">KAITO</span>
-        <span className="ml-2 bg-blue-600 text-xs px-2 py-1 rounded">YAPS</span>
+        <span className="font-bold text-xl">ChiliRoar</span>
+        <span className="ml-2 bg-blue-600 text-xs px-2 py-1 rounded">ROARS</span>
       </div>
       <nav className="flex-1">
         <ul className="space-y-2">
@@ -14,24 +14,24 @@ export default function Sidebar() {
             <span>🏛️</span> Pre-TGE Arena
           </li>
           <li className="hover:bg-gray-800 rounded px-3 py-2 flex items-center gap-2">
-            <span>🏆</span> Yapper Leaderboards
+            <span>🏆</span> Roar Leaderboards
           </li>
           <li className="hover:bg-gray-800 rounded px-3 py-2 flex items-center gap-2">
             <span>💬</span>
-            <Link href="/yaps" className="w-full h-full block">Yaps</Link>
+            <Link href="/roars" className="w-full h-full block">Roars</Link>
           </li>
           <li className="hover:bg-gray-800 rounded px-3 py-2 flex items-center gap-2">
             <span>📰</span>
-            <Link href="/yapper-feeds" className="w-full h-full block">Yapper Feeds</Link>
+            <Link href="/roar-feeds" className="w-full h-full block">Roar Feeds</Link>
           </li>
           <li className="hover:bg-gray-800 rounded px-3 py-2 flex items-center gap-2">
-            <span>💰</span> Kaito Earn
+            <span>💰</span> ChiliRoar Earn
           </li>
           <li className="hover:bg-gray-800 rounded px-3 py-2 flex items-center gap-2">
             <span>🎁</span> Airdrops
           </li>
           <li className="hover:bg-gray-800 rounded px-3 py-2 flex items-center gap-2">
-            <span>🔒</span> Stake KAITO
+            <span>🔒</span> Stake ChiliRoar
           </li>
         </ul>
       </nav>
@@ -43,7 +43,7 @@ export default function Sidebar() {
         <div className="flex items-center gap-2">
           <span>👤</span> alex
         </div>
-        <div className="mt-4">© 2025 Kaito All Rights Reserved.</div>
+        <div className="mt-4">© 2025 ChiliRoar All Rights Reserved.</div>
       </div>
     </aside>
   );
