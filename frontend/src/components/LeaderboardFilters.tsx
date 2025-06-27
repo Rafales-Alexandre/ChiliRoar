@@ -8,8 +8,6 @@ interface LeaderboardFiltersProps {
 const filters = [
   'Top Roars',
   'Emerging',
-  'Chinese',
-  'Korean',
   'My Following',
 ];
 

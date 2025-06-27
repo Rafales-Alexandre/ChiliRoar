@@ -1,39 +1,44 @@
 import React from 'react';
+import FanTokenCard from './FanTokenCard';
 
 interface TreemapItem {
   name: string;
   value: number;
+  price?: number;
   color: string;
   crown?: number;
   icon?: string;
+  history?: number[];
 }
 
 interface TreemapProps {
   data: TreemapItem[];
+  loading?: boolean;
 }
 
-const crownColors = [
-  'border-yellow-400', // 1er
-  'border-gray-300',   // 2e
-  'border-orange-700', // 3e
-];
-
-export default function Treemap({ data }: TreemapProps) {
+export default function Treemap({ data, loading = false }: TreemapProps) {
   return (
-    <div className="grid grid-cols-4 gap-3 h-full">
+    <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
       {data.map((item, i) => (
-        <div
-          key={i}
-          className={`relative flex flex-col justify-end p-3 h-32 rounded-lg shadow ${item.color} ${item.crown ? crownColors[item.crown-1] + ' border-4' : ''}`}
-        >
-          {item.crown && (
-            <span className="absolute top-2 right-2 text-yellow-300 text-xl">
-              {item.crown === 1 ? '🥇' : item.crown === 2 ? '🥈' : '🥉'}
-            </span>
-          )}
-          <span className="absolute top-2 left-2 text-2xl">{item.icon}</span>
-          <span className="text-lg font-bold text-white mt-auto">{item.name}</span>
-          <span className="text-white text-sm">{item.value}%</span>
+        <div key={item.name + i} className="h-full">
+          <FanTokenCard
+            token={{
+              ticker: item.name,
+              name: item.name,
+              category: '', // à adapter si tu veux afficher la catégorie
+              country: '',
+              league: '',
+              price: item.price ?? 0,
+              id: item.name,
+              // Ajoute d'autres champs si besoin
+            }}
+            price={item.price}
+            loading={loading}
+            historyData={item.history}
+            marketData={{ change24h: item.value }}
+            marketLoading={loading}
+            selected={!!item.crown}
+          />
         </div>
       ))}
     </div>
