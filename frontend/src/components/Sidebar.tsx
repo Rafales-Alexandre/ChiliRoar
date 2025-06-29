@@ -50,7 +50,7 @@ export default function Sidebar() {
               ? 'bg-green-600 text-white font-semibold shadow-lg' 
               : 'hover:bg-gray-800'
           }`}>
-            <img src="roar.png" alt="Roar Feeds" className="w-6 h-6" />
+            <img src="Roar.png" alt="Roar Feeds" className="w-6 h-6" />
             <Link href="/roar-feeds" className="w-full h-full block">Roar Feeds</Link>
           </li>
           <li className={`rounded px-3 py-2 flex items-center gap-3 transition-all duration-200 ${
