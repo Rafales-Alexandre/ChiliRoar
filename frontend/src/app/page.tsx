@@ -43,7 +43,7 @@ export default function HomePage() {
         {!videoError ? (
           <video
             ref={videoRef}
-            autoplay
+            autoPlay
             muted
             playsInline
             className="w-full h-full object-cover"
