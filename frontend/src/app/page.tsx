@@ -49,7 +49,6 @@ export default function HomePage() {
             className="w-full h-full object-cover"
             onLoadedData={handleVideoLoaded}
             onError={handleVideoError}
-            style={{ opacity: isVideoLoaded ? 1 : 1 }}
           >
             <source src="/background-video.mp4" type="video/mp4" />
           </video>
