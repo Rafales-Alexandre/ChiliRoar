@@ -48,35 +48,22 @@ export async function GET(request: Request) {
       return NextResponse.redirect(redirectUrl)
     } 
     
-    // Cas spécial pour Twitter : même si il y a une "erreur", vérifier si on a quand même une session
-    if (exchangeError && exchangeError.message?.toLowerCase().includes('email')) {
-      console.log('Erreur liée à l\'email détectée, vérification de session alternative...')
+    // Cas spécial : Erreur 500 "Error getting user email from external provider"
+    if (exchangeError && (
+      exchangeError.message?.includes('email') || 
+      exchangeError.message?.includes('external provider')
+    )) {
+      console.log('Erreur email détectée - tentative de création manuelle...')
       
-      // Essayer de récupérer une session existante
-      const { data: sessionCheck, error: sessionError } = await supabase.auth.getSession()
-      
-      if (sessionCheck?.session) {
-        console.log('Session trouvée malgré l\'erreur email:', sessionCheck.session.user.id)
-        
-        const forwardedHost = request.headers.get('x-forwarded-host')
-        const redirectUrl = forwardedHost 
-          ? `https://${forwardedHost}${next}`
-          : `${origin}${next}`
-        
-        return NextResponse.redirect(redirectUrl)
-      }
-      
-      // Si pas de session, essayer de créer un utilisateur avec les données disponibles
-      console.log('Tentative de création d\'utilisateur sans email...')
-      
-      // Rediriger vers une page spéciale pour finaliser l'inscription
-      const specialParams = new URLSearchParams({
-        action: 'complete_twitter_signup',
+      // Rediriger vers une page qui va gérer la création manuelle
+      const redirectParams = new URLSearchParams({
+        action: 'manual_twitter_signup',
         code: code,
-        next: next
+        next: next,
+        error: 'email_missing'
       })
       
-      return NextResponse.redirect(`${origin}/auth/complete-signup?${specialParams.toString()}`)
+      return NextResponse.redirect(`${origin}/auth/manual-signup?${redirectParams.toString()}`)
     }
     
     // Autres erreurs

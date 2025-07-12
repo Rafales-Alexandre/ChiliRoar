@@ -52,6 +52,28 @@ export function AuthProvider({ children }: AuthProviderProps) {
   useEffect(() => {
     const checkSession = async () => {
       try {
+        // Vérifier d'abord la session locale (pour les utilisateurs Twitter manuels)
+        const localUser = localStorage.getItem('chiliroar_user');
+        const localSession = localStorage.getItem('chiliroar_session');
+        
+        if (localUser && localSession) {
+          const userData = JSON.parse(localUser);
+          const sessionData = JSON.parse(localSession);
+          
+          // Vérifier si la session locale n'est pas expirée
+          if (sessionData.expires_at > Date.now()) {
+            console.log('Session locale trouvée:', userData.id);
+            setUser(userData);
+            setIsLoading(false);
+            return;
+          } else {
+            // Session expirée, nettoyer
+            localStorage.removeItem('chiliroar_user');
+            localStorage.removeItem('chiliroar_session');
+          }
+        }
+        
+        // Vérifier la session Supabase normale
         const { data: { session }, error } = await supabase.auth.getSession();
         
         if (error) {
@@ -303,6 +325,12 @@ export function AuthProvider({ children }: AuthProviderProps) {
   const signOut = async () => {
     try {
       setError(null);
+      
+      // Nettoyer les sessions locales
+      localStorage.removeItem('chiliroar_user');
+      localStorage.removeItem('chiliroar_session');
+      
+      // Déconnexion Supabase
       const { error } = await supabase.auth.signOut();
       
       if (error) {
