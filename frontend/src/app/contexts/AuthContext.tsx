@@ -80,8 +80,11 @@ export function AuthProvider({ children }: AuthProviderProps) {
           console.error('Erreur lors de la vérification de session:', error);
           setError(error.message);
         } else if (session?.user) {
+          console.log('Session Supabase trouvée:', session.user.id);
           // Récupérer les données utilisateur complètes
           await fetchUserProfile(session.user.id);
+        } else {
+          console.log('Aucune session Supabase trouvée');
         }
       } catch (err) {
         console.error('Erreur lors de la vérification de session:', err);

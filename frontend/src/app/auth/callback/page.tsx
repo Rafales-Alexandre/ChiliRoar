@@ -16,6 +16,80 @@ export default function CallbackPage() {
   
   const supabase = createClient();
 
+  const createUserProfile = async (authUser: any) => {
+    try {
+      console.log('🔄 Création du profil utilisateur...');
+      
+      // Préparer les données du profil
+      const userName = authUser.user_metadata?.full_name || 
+                      authUser.user_metadata?.name || 
+                      authUser.user_metadata?.user_name || 
+                      `Utilisateur ${authUser.id.slice(0, 8)}`;
+      
+      const profileData = {
+        id: authUser.id,
+        email: authUser.email || null,
+        name: userName,
+        avatar_url: authUser.user_metadata?.avatar_url,
+        provider: authUser.app_metadata?.provider,
+        wallet_address: null,
+      };
+
+      console.log('Données du profil à créer:', profileData);
+
+      // Vérifier si le profil existe déjà
+      const { data: existingProfile, error: fetchError } = await supabase
+        .from('profiles')
+        .select('*')
+        .eq('id', authUser.id)
+        .single();
+
+      if (fetchError && fetchError.code !== 'PGRST116') {
+        throw fetchError;
+      }
+
+      if (existingProfile) {
+        // Mettre à jour le profil existant
+        console.log('📝 Mise à jour du profil existant...');
+        const { data: updatedProfile, error: updateError } = await supabase
+          .from('profiles')
+          .update({
+            email: profileData.email,
+            name: profileData.name,
+            avatar_url: profileData.avatar_url,
+            updated_at: new Date().toISOString()
+          })
+          .eq('id', authUser.id)
+          .select()
+          .single();
+
+        if (updateError) {
+          throw updateError;
+        }
+
+        console.log('✅ Profil mis à jour:', updatedProfile);
+      } else {
+        // Créer un nouveau profil
+        console.log('🆕 Création d\'un nouveau profil...');
+        const { data: newProfile, error: createError } = await supabase
+          .from('profiles')
+          .insert([profileData])
+          .select()
+          .single();
+
+        if (createError) {
+          throw createError;
+        }
+
+        console.log('✅ Profil créé:', newProfile);
+      }
+
+    } catch (error) {
+      console.error('❌ Erreur lors de la création/mise à jour du profil:', error);
+      throw error;
+    }
+  };
+
   useEffect(() => {
     if (errorParam) {
       // Erreur explicite de Twitter
@@ -53,13 +127,28 @@ export default function CallbackPage() {
       });
       
       if (!exchangeError && data?.session) {
-        // Succès
+        // Succès - créer le profil utilisateur
         console.log('✅ Authentification réussie');
-        setStatus('success');
-        setTimeout(() => {
-          router.push(next);
-        }, 1000);
-        return;
+        console.log('Données utilisateur:', data.user);
+        
+        try {
+          // Créer ou mettre à jour le profil utilisateur
+          await createUserProfile(data.user);
+          
+          setStatus('success');
+          setTimeout(() => {
+            router.push(next);
+          }, 1500);
+          return;
+        } catch (profileError) {
+          console.error('❌ Erreur création profil:', profileError);
+          // Continuer quand même vers le dashboard
+          setStatus('success');
+          setTimeout(() => {
+            router.push(next);
+          }, 1500);
+          return;
+        }
       }
       
       // Erreur détectée
