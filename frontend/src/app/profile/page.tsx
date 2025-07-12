@@ -3,6 +3,7 @@ import React, { useState } from "react";
 import { useAuth } from "../contexts/AuthContext";
 import { useWallet } from "../contexts/WalletContext";
 import Link from "next/link";
+import FanTokensDisplay from "../../components/FanTokensDisplay";
 
 export default function ProfilePage() {
   const { user, isLoading, error, signInWithTwitter, signInWithWallet, refreshUser } = useAuth();
@@ -123,6 +124,9 @@ export default function ProfilePage() {
         {/* Feedback */}
         {success && <div className="mb-4 p-3 bg-green-100 text-green-800 rounded">{success}</div>}
         {(error || localError) && <div className="mb-4 p-3 bg-red-100 text-red-800 rounded">{error || localError}</div>}
+
+        {/* Fan Tokens Display */}
+        <FanTokensDisplay />
 
         <div className="mt-8 text-center">
           <Link href="/dashboard" className="text-green-600 hover:underline font-semibold">Retour au dashboard</Link>

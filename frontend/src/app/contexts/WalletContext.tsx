@@ -6,10 +6,12 @@ interface WalletContextType {
   account: string | null;
   chainId: string | null;
   connectWallet: () => Promise<void>;
+  connectSocios: () => Promise<void>;
   disconnectWallet: () => void;
   resetDisconnectState: () => void;
   isLoading: boolean;
   error: string | null;
+  walletType: 'metamask' | 'socios' | null;
 }
 
 const WalletContext = createContext<WalletContextType | undefined>(undefined);
@@ -33,6 +35,7 @@ export function WalletProvider({ children }: WalletProviderProps) {
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [isManuallyDisconnected, setIsManuallyDisconnected] = useState(false);
+  const [walletType, setWalletType] = useState<'metamask' | 'socios' | null>(null);
 
   // Check if wallet is installed (MetaMask or other)
   const checkIfWalletInstalled = () => {
@@ -117,6 +120,7 @@ export function WalletProvider({ children }: WalletProviderProps) {
       if (accounts.length > 0) {
         setAccount(accounts[0]);
         setIsConnected(true);
+        setWalletType('metamask');
 
         // Get chain ID
         const chainId = await window.ethereum.request({ method: 'eth_chainId' });
@@ -139,6 +143,66 @@ export function WalletProvider({ children }: WalletProviderProps) {
     }
   };
 
+  const connectSocios = async () => {
+    setIsLoading(true);
+    setError(null);
+
+    try {
+      // Détecter si on est dans l'app Socios
+      const userAgent = navigator.userAgent.toLowerCase();
+      const isSociosApp = userAgent.includes('socios') || userAgent.includes('chiliz');
+      
+      if (isSociosApp) {
+        // Utiliser le provider injecté par Socios
+        const provider = (window as any).socios || (window as any).chiliz || (window as any).ethereum;
+        
+        if (!provider) {
+          throw new Error('Provider Socios non détecté');
+        }
+
+        const accounts = await provider.request({
+          method: 'eth_requestAccounts',
+        });
+
+        if (accounts.length > 0) {
+          setAccount(accounts[0]);
+          setIsConnected(true);
+          setWalletType('socios');
+
+          const chainId = await provider.request({ method: 'eth_chainId' });
+          setChainId(chainId);
+
+          console.log('Connexion Socios réussie:', accounts[0]);
+        }
+      } else {
+        // Ouvrir l'app Socios via deep link
+        const sociosDeepLink = `socios://wallet-connect?dapp=${encodeURIComponent(window.location.origin)}`;
+        
+        // Essayer d'ouvrir l'app
+        window.location.href = sociosDeepLink;
+        
+        // Fallback: rediriger vers le store si l'app n'est pas installée
+        setTimeout(() => {
+          const isAndroid = /android/i.test(navigator.userAgent);
+          const isIOS = /iphone|ipad|ipod/i.test(navigator.userAgent);
+          
+          if (isAndroid) {
+            window.open('https://play.google.com/store/apps/details?id=com.socios', '_blank');
+          } else if (isIOS) {
+            window.open('https://apps.apple.com/app/socios/id1456609840', '_blank');
+          }
+        }, 2000);
+        
+        throw new Error('Veuillez installer l\'app Socios pour continuer');
+      }
+    } catch (err: any) {
+      console.error('Erreur connexion Socios:', err);
+      setError(err.message || 'Erreur lors de la connexion Socios');
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
   const disconnectWallet = async () => {
     try {
       // Marquer comme déconnecté manuellement
@@ -148,6 +212,7 @@ export function WalletProvider({ children }: WalletProviderProps) {
       setIsConnected(false);
       setAccount(null);
       setChainId(null);
+      setWalletType(null);
       setError(null);
       
       // Note: La plupart des wallets ne supportent pas la déconnexion programmatique
@@ -160,6 +225,7 @@ export function WalletProvider({ children }: WalletProviderProps) {
       setIsConnected(false);
       setAccount(null);
       setChainId(null);
+      setWalletType(null);
     }
   };
 
@@ -172,10 +238,12 @@ export function WalletProvider({ children }: WalletProviderProps) {
     account,
     chainId,
     connectWallet,
+    connectSocios,
     disconnectWallet,
     resetDisconnectState,
     isLoading,
     error,
+    walletType,
   };
 
   return (

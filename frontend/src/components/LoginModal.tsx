@@ -19,6 +19,13 @@ const loginProviders: LoginProvider[] = [
     gradient: 'hover:from-blue-500 hover:to-blue-600'
   },
   {
+    id: 'socios',
+    name: 'Socios',
+    icon: <img src="/socios.png" alt="Socios" className="w-5 h-5" />,
+    color: 'from-red-500 to-orange-500',
+    gradient: 'hover:from-red-600 hover:to-orange-600'
+  },
+  {
     id: 'wallet',
     name: 'Wallet',
     icon: '⚽',
@@ -34,10 +41,12 @@ export default function LoginModal({ isOpen, onClose }: LoginModalProps) {
     account, 
     chainId,
     connectWallet, 
+    connectSocios,
     disconnectWallet,
     resetDisconnectState,
     isLoading: walletLoading, 
-    error: walletError 
+    error: walletError,
+    walletType 
   } = useWallet();
 
   const {
@@ -88,6 +97,18 @@ export default function LoginModal({ isOpen, onClose }: LoginModalProps) {
     }
   };
 
+  const handleSociosLogin = async () => {
+    try {
+      await connectSocios();
+      if (account) {
+        await signInWithWallet(account);
+        showSuccess('Connexion avec Socios réussie !');
+      }
+    } catch (error) {
+      showError('Erreur lors de la connexion avec Socios');
+    }
+  };
+
 
 
   const handleDisconnect = async () => {
@@ -132,7 +153,7 @@ export default function LoginModal({ isOpen, onClose }: LoginModalProps) {
             </div>
             <p className="text-green-400 font-medium">
               ✅ Connecté avec {user.provider === 'twitter' ? 'Twitter' : 
-                               user.provider === 'wallet' ? 'Wallet' : 'Compte'}
+                               user.provider === 'wallet' ? (walletType === 'socios' ? 'Socios' : 'Wallet') : 'Compte'}
             </p>
           </div>
 
@@ -250,6 +271,20 @@ export default function LoginModal({ isOpen, onClose }: LoginModalProps) {
                               <img src="/twitter.png" alt="Twitter" className="w-5 h-5" />
             )}
             {authLoading ? 'Connexion...' : 'Se connecter avec Twitter'}
+          </button>
+
+          {/* Socios Login */}
+          <button
+            onClick={handleSociosLogin}
+            disabled={walletLoading || authLoading}
+            className="w-full bg-gradient-to-r from-red-500 to-orange-500 hover:from-red-600 hover:to-orange-600 disabled:from-gray-600 disabled:to-gray-700 text-white py-3 px-4 rounded-lg font-medium transition-all duration-200 flex items-center justify-center gap-3"
+          >
+            {(walletLoading || authLoading) ? (
+              <div className="w-5 h-5 border-2 border-white border-t-transparent rounded-full animate-spin"></div>
+            ) : (
+              <img src="/socios.png" alt="Socios" className="w-5 h-5" />
+            )}
+            {(walletLoading || authLoading) ? 'Connexion...' : 'Se connecter avec Socios'}
           </button>
 
           {/* Wallet Login */}

@@ -26,7 +26,7 @@ export interface AuthContextType extends AuthState {
 }
 
 export interface LoginProvider {
-  id: 'twitter' | 'wallet'
+  id: 'twitter' | 'wallet' | 'socios'
   name: string
   icon: string | React.ReactNode
   color: string
