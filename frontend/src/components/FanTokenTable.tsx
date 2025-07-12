@@ -1,6 +1,10 @@
 import React, { useState, useMemo } from 'react';
 import { fanTokens, FanToken } from '../app/fanTokens';
-import { FanTokenMarketData } from '../app/contexts/FanTokenDataContext';
+// Remplacer par un type local si besoin :
+type FanTokenMarketData = {
+  price?: number;
+  change24h?: number;
+};
 
 interface FanTokenTableProps {
   tokens?: FanToken[];

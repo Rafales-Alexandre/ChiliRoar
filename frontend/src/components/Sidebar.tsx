@@ -2,9 +2,11 @@
 import React from 'react';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
+import { useAuth } from '../app/contexts/AuthContext';
 
 export default function Sidebar() {
   const pathname = usePathname();
+  const { user, signOut } = useAuth();
 
   const isActive = (path: string) => {
     if (path === '/') {
@@ -70,12 +72,12 @@ export default function Sidebar() {
             <Link href="/chiliroar-earn" className="w-full h-full block">ChiliRoar Earn</Link>
           </li>
           <li className={`rounded px-3 py-2 flex items-center gap-3 transition-all duration-200 ${
-            isActive('/airdrops') 
+            isActive('/campaigns') 
               ? 'bg-green-600 text-white font-semibold shadow-lg' 
               : 'hover:bg-gray-800'
           }`}>
-            <img src="airdrop.png" alt="Airdrops" className="w-6 h-6" />
-            <Link href="/airdrops" className="w-full h-full block">Airdrops</Link>
+            <img src="/trophy.png" alt="Campagnes" className="w-6 h-6" />
+            <Link href="/campaigns" className="w-full h-full block">Campagnes</Link>
           </li>
         </ul>
       </nav>
@@ -85,8 +87,27 @@ export default function Sidebar() {
           <span>❓</span> FAQ
         </div>
         <div className="flex items-center gap-2">
-          <span>👤</span> alex
+          {user ? (
+            <>
+              {user.avatar_url && (
+                <img src={user.avatar_url} alt="avatar" className="w-7 h-7 rounded-full border border-green-400" />
+              )}
+              <Link href="/profile" className="text-green-400 hover:underline font-semibold">
+                {user.name || user.email || 'Profil'}
+              </Link>
+            </>
+          ) : (
+            <span className="text-gray-400">Profil</span>
+          )}
         </div>
+        {user && (
+          <button
+            onClick={signOut}
+            className="mt-6 w-full bg-red-600 hover:bg-red-700 text-white py-2 rounded-lg font-semibold transition-colors duration-200"
+          >
+            Se déconnecter
+          </button>
+        )}
         <div className="mt-4">© 2025 ChiliRoar All Rights Reserved.</div>
       </div>
     </aside>

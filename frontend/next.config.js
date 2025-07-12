@@ -22,9 +22,6 @@ const nextConfig = {
     };
     return config;
   },
-  experimental: {
-    appDir: true,
-  },
   async rewrites() {
     return [
       {

@@ -2,6 +2,7 @@
 import React, { useState } from 'react';
 import Sidebar from '../../components/Sidebar';
 import Header from '../../components/Header';
+import ProtectedRoute from '../../components/ProtectedRoute';
 import TableSection from '../../components/TableSection';
 import Treemap from '../../components/Treemap';
 import FanTokenStats from '../../components/FanTokenStats';
@@ -24,7 +25,9 @@ export default function Dashboard() {
   const [period, setPeriod] = useState<HistoryPeriod>('24h');
 
   const { data: marketData, loading } = useFanTokenMarketData(treemapTickers);
-  const { data: historyData, loading: loadingHistory } = useFanTokenHistory(treemapTickers, period);
+  // const { data: historyData, loading: loadingHistory } = useFanTokenHistory(treemapTickers, period);
+  const historyData = {};
+  const loadingHistory = false;
 
   // Top FanTokens Gainers (24h variation)
   const topGainers = [
@@ -105,45 +108,47 @@ export default function Dashboard() {
   }
 
   return (
-    <div className="flex min-h-screen bg-gray-950">
-      <Sidebar />
-      <main className="flex-1 p-8">
-        <Header />
-        {/* FanTokens Section */}
-        <div className="mb-8">
-          <FanTokenStats />
-        </div>
-        <div className="flex gap-8">
-          {/* Left column */}
-          <div className="w-1/3">
-            <h2 className="text-xl font-bold mb-4 text-white flex items-center">
-              <img src="/trophy.png" alt="Arena" className="w-6 h-6 mr-2" />
-              ChiliRoar Arena
-            </h2>
-            <TableSection title="Top FanTokens" data={topGainers} positive={true} />
-            <TableSection title="Top Roars" data={topRoars} positive={true} />
-            <TableSection title="Declining FanTokens" data={topLosers} positive={false} />
+    <ProtectedRoute>
+      <div className="flex min-h-screen bg-gray-950">
+        <Sidebar />
+        <main className="flex-1 p-8">
+          <Header />
+          {/* FanTokens Section */}
+          <div className="mb-8">
+            <FanTokenStats />
           </div>
-          {/* Right column */}
-          <div className="flex-1">
-            <div className="flex items-center justify-between mb-4">
-              <div className="text-lg font-semibold text-white">FanTokens by Popularity &gt; Performance &gt; Volume</div>
-              <div className="flex gap-2">
-                {PERIODS.map(p => (
-                  <button
-                    key={p.value}
-                    className={`bg-gray-800 px-3 py-1 rounded ${period === p.value ? 'text-green-400 font-bold border border-green-400' : 'text-gray-200'}`}
-                    onClick={() => setPeriod(p.value)}
-                  >
-                    {p.label}
-                  </button>
-                ))}
-              </div>
+          <div className="flex gap-8">
+            {/* Left column */}
+            <div className="w-1/3">
+              <h2 className="text-xl font-bold mb-4 text-white flex items-center">
+                <img src="/trophy.png" alt="Arena" className="w-6 h-6 mr-2" />
+                ChiliRoar Arena
+              </h2>
+              <TableSection title="Top FanTokens" data={topGainers} positive={true} />
+              <TableSection title="Top Roars" data={topRoars} positive={true} />
+              <TableSection title="Declining FanTokens" data={topLosers} positive={false} />
             </div>
-            <Treemap data={treemapData} loading={loading || loadingHistory} />
+            {/* Right column */}
+            <div className="flex-1">
+              <div className="flex items-center justify-between mb-4">
+                <div className="text-lg font-semibold text-white">FanTokens by Popularity &gt; Performance &gt; Volume</div>
+                <div className="flex gap-2">
+                  {PERIODS.map(p => (
+                    <button
+                      key={p.value}
+                      className={`bg-gray-800 px-3 py-1 rounded ${period === p.value ? 'text-green-400 font-bold border border-green-400' : 'text-gray-200'}`}
+                      onClick={() => setPeriod(p.value)}
+                    >
+                      {p.label}
+                    </button>
+                  ))}
+                </div>
+              </div>
+              <Treemap data={treemapData} loading={loading || loadingHistory} />
+            </div>
           </div>
-        </div>
-      </main>
-    </div>
+        </main>
+      </div>
+    </ProtectedRoute>
   );
 } 

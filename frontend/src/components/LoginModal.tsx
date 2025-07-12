@@ -1,46 +1,113 @@
 "use client";
 import React, { useState } from 'react';
 import { useWallet } from '../app/contexts/WalletContext';
+import { useAuth } from '../app/contexts/AuthContext';
+import { useToast } from '../app/contexts/ToastContext';
+import { LoginProvider } from '../types/auth';
 
 interface LoginModalProps {
   isOpen: boolean;
   onClose: () => void;
 }
 
+const loginProviders: LoginProvider[] = [
+  {
+    id: 'twitter',
+    name: 'Twitter',
+    icon: '🐦',
+    color: 'from-blue-400 to-blue-500',
+    gradient: 'hover:from-blue-500 hover:to-blue-600'
+  },
+  {
+    id: 'wallet',
+    name: 'Wallet',
+    icon: '⚽',
+    color: 'from-green-500 to-blue-500',
+    gradient: 'hover:from-green-600 hover:to-blue-600'
+  }
+];
+
 export default function LoginModal({ isOpen, onClose }: LoginModalProps) {
-  const [activeTab, setActiveTab] = useState<'wallet' | 'email'>('wallet');
-  const [email, setEmail] = useState('');
-  const [password, setPassword] = useState('');
   
   const { 
     isConnected, 
     account, 
     chainId,
     connectWallet, 
-    disconnectWallet, 
-    isLoading, 
-    error 
+    disconnectWallet,
+    resetDisconnectState,
+    isLoading: walletLoading, 
+    error: walletError 
   } = useWallet();
+
+  const {
+    user,
+    isLoading: authLoading,
+    error: authError,
+    signInWithTwitter,
+    signInWithWallet,
+    signOut
+  } = useAuth();
+  
+  const { showSuccess, showError, showInfo } = useToast();
 
   if (!isOpen) return null;
 
   const handleWalletConnect = async () => {
-    await connectWallet();
+    try {
+      await connectWallet();
+      showSuccess('Wallet connecté avec succès !');
+    } catch (error) {
+      showError('Erreur lors de la connexion du wallet');
+    }
   };
 
-  const handleEmailLogin = (e: React.FormEvent) => {
-    e.preventDefault();
-    // Email login logic
-    console.log('Email login:', email);
+  const handleSocialLogin = async (provider: 'twitter') => {
+    try {
+      switch (provider) {
+        case 'twitter':
+          await signInWithTwitter();
+          break;
+      }
+      showSuccess(`Connexion avec ${provider} réussie !`);
+    } catch (error) {
+      showError(`Erreur lors de la connexion avec ${provider}`);
+    }
   };
 
-  const handleDisconnect = () => {
-    disconnectWallet();
-    onClose();
+  const handleWalletLogin = async () => {
+    try {
+      if (isConnected && account) {
+        await signInWithWallet(account);
+        showSuccess('Connexion avec wallet réussie !');
+      } else {
+        await connectWallet();
+      }
+    } catch (error) {
+      showError('Erreur lors de la connexion avec le wallet');
+    }
   };
 
-  // If user is connected, show wallet information
-  if (isConnected && account) {
+
+
+  const handleDisconnect = async () => {
+    try {
+      await disconnectWallet();
+      signOut();
+      showInfo('Déconnexion réussie - Le wallet restera connecté dans votre application wallet mais déconnecté de ChiliRoar');
+      onClose();
+    } catch (error) {
+      showError('Erreur lors de la déconnexion');
+    }
+  };
+
+  const handleReconnect = () => {
+    resetDisconnectState();
+    showInfo('Connexion automatique réactivée');
+  };
+
+  // If user is authenticated, show user information
+  if (user) {
     return (
       <div className="fixed inset-0 z-50 flex items-center justify-center">
         <div 
@@ -63,26 +130,47 @@ export default function LoginModal({ isOpen, onClose }: LoginModalProps) {
               <img src="/LOGO.png" alt="ChiliRoar" className="w-12 h-12 mr-3" />
               <h2 className="text-2xl font-bold text-white">ChiliRoar</h2>
             </div>
-            <p className="text-green-400 font-medium">✅ Connected with MetaMask</p>
+            <p className="text-green-400 font-medium">
+              ✅ Connecté avec {user.provider === 'twitter' ? 'Twitter' : 
+                               user.provider === 'wallet' ? 'Wallet' : 'Compte'}
+            </p>
           </div>
 
           <div className="bg-gray-800 rounded-lg p-4 mb-6">
             <div className="flex items-center justify-between mb-2">
-              <span className="text-gray-400 text-sm">Address:</span>
-              <span className="text-white text-sm font-mono">
-                {account.slice(0, 6)}...{account.slice(-4)}
+              <span className="text-gray-400 text-sm">Nom:</span>
+              <span className="text-white text-sm font-medium">
+                {user.name || 'Utilisateur'}
               </span>
             </div>
-            <div className="flex items-center justify-between">
-              <span className="text-gray-400 text-sm">Network:</span>
-              <span className="text-blue-400 text-sm">
-                {chainId === '0x1' ? 'Ethereum Mainnet' : 
-                 chainId === '0x89' ? 'Polygon' : 
-                 chainId === '0xa' ? 'Optimism' : 
-                 chainId === '0xa4b1' ? 'Arbitrum' : 
-                 chainId ? `Chain ID: ${chainId}` : 'Unknown'}
-              </span>
-            </div>
+            {user.email && (
+              <div className="flex items-center justify-between mb-2">
+                <span className="text-gray-400 text-sm">Email:</span>
+                <span className="text-white text-sm">
+                  {user.email}
+                </span>
+              </div>
+            )}
+            {user.wallet_address && (
+              <div className="flex items-center justify-between mb-2">
+                <span className="text-gray-400 text-sm">Wallet:</span>
+                <span className="text-white text-sm font-mono">
+                  {user.wallet_address.slice(0, 6)}...{user.wallet_address.slice(-4)}
+                </span>
+              </div>
+            )}
+            {isConnected && chainId && (
+              <div className="flex items-center justify-between">
+                <span className="text-gray-400 text-sm">Réseau:</span>
+                <span className="text-blue-400 text-sm">
+                  {chainId === '0x1' ? 'Ethereum Mainnet' : 
+                   chainId === '0x89' ? 'Polygon' : 
+                   chainId === '0xa' ? 'Optimism' : 
+                   chainId === '0xa4b1' ? 'Arbitrum' : 
+                   chainId ? `Chain ID: ${chainId}` : 'Inconnu'}
+                </span>
+              </div>
+            )}
           </div>
 
           <div className="space-y-3">
@@ -91,6 +179,13 @@ export default function LoginModal({ isOpen, onClose }: LoginModalProps) {
               className="w-full bg-red-600 hover:bg-red-700 text-white py-3 px-4 rounded-lg font-medium transition-colors duration-200"
             >
               Disconnect
+            </button>
+            
+            <button
+              onClick={handleReconnect}
+              className="w-full bg-blue-600 hover:bg-blue-700 text-white py-3 px-4 rounded-lg font-medium transition-colors duration-200"
+            >
+              Réactiver Connexion Auto
             </button>
             
             <button
@@ -135,148 +230,65 @@ export default function LoginModal({ isOpen, onClose }: LoginModalProps) {
         </div>
 
         {/* Error message */}
-        {error && (
+        {(authError || walletError) && (
           <div className="mb-6 p-4 bg-red-900/50 border border-red-500 rounded-lg">
-            <p className="text-red-400 text-sm">{error}</p>
+            <p className="text-red-400 text-sm">{authError || walletError}</p>
           </div>
         )}
 
-        {/* Tabs */}
-        <div className="flex mb-6 bg-gray-800 rounded-lg p-1">
+        {/* Login Options */}
+        <div className="space-y-4">
+          {/* Twitter Login */}
           <button
-            onClick={() => setActiveTab('wallet')}
-            className={`flex-1 py-2 px-4 rounded-md text-sm font-medium transition-colors duration-200 ${
-              activeTab === 'wallet'
-                ? 'bg-green-600 text-white'
-                : 'text-gray-400 hover:text-white'
-            }`}
+            onClick={() => handleSocialLogin('twitter')}
+            disabled={authLoading}
+            className="w-full bg-gradient-to-r from-blue-400 to-blue-500 hover:from-blue-500 hover:to-blue-600 disabled:from-gray-600 disabled:to-gray-700 text-white py-3 px-4 rounded-lg font-medium transition-all duration-200 flex items-center justify-center gap-3"
           >
-            🦊 Wallet
+            {authLoading ? (
+              <div className="w-5 h-5 border-2 border-white border-t-transparent rounded-full animate-spin"></div>
+            ) : (
+              <span className="text-xl">🐦</span>
+            )}
+            {authLoading ? 'Connexion...' : 'Se connecter avec Twitter'}
           </button>
+
+          {/* Wallet Login */}
           <button
-            onClick={() => setActiveTab('email')}
-            className={`flex-1 py-2 px-4 rounded-md text-sm font-medium transition-colors duration-200 ${
-              activeTab === 'email'
-                ? 'bg-green-600 text-white'
-                : 'text-gray-400 hover:text-white'
-            }`}
+            onClick={handleWalletLogin}
+            disabled={walletLoading || authLoading}
+            className="w-full bg-gradient-to-r from-green-500 to-blue-500 hover:from-green-600 hover:to-blue-600 disabled:from-gray-600 disabled:to-gray-700 text-white py-3 px-4 rounded-lg font-medium transition-all duration-200 flex items-center justify-center gap-3"
           >
-            📧 Email
+            {(walletLoading || authLoading) ? (
+              <div className="w-5 h-5 border-2 border-white border-t-transparent rounded-full animate-spin"></div>
+            ) : (
+              <span className="text-xl">⚽</span>
+            )}
+            {(walletLoading || authLoading) ? 'Connexion...' : 'Se connecter avec Wallet'}
           </button>
-        </div>
 
-        {/* Wallet Tab */}
-        {activeTab === 'wallet' && (
-          <div className="space-y-4">
-            <button
-              onClick={handleWalletConnect}
-              disabled={isLoading}
-              className="w-full bg-gradient-to-r from-orange-500 to-red-500 hover:from-orange-600 hover:to-red-600 disabled:from-gray-600 disabled:to-gray-700 text-white py-3 px-4 rounded-lg font-medium transition-all duration-200 flex items-center justify-center gap-3"
-            >
-              {isLoading ? (
-                <div className="w-5 h-5 border-2 border-white border-t-transparent rounded-full animate-spin"></div>
-              ) : (
-                <svg className="w-5 h-5" fill="currentColor" viewBox="0 0 24 24">
-                  <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-2 15l-5-5 1.41-1.41L10 14.17l7.59-7.59L19 8l-9 9z"/>
-                </svg>
-              )}
-              {isLoading ? 'Connecting...' : 'Connect with MetaMask'}
-            </button>
-
-            <button className="w-full bg-gradient-to-r from-blue-500 to-purple-500 hover:from-blue-600 hover:to-purple-600 text-white py-3 px-4 rounded-lg font-medium transition-all duration-200 flex items-center justify-center gap-3">
-              <svg className="w-5 h-5" fill="currentColor" viewBox="0 0 24 24">
-                <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-2 15l-5-5 1.41-1.41L10 14.17l7.59-7.59L19 8l-9 9z"/>
-              </svg>
-              Connect with WalletConnect
-            </button>
-
-            <button className="w-full bg-gradient-to-r from-green-500 to-teal-500 hover:from-green-600 hover:to-teal-600 text-white py-3 px-4 rounded-lg font-medium transition-all duration-200 flex items-center justify-center gap-3">
-              <svg className="w-5 h-5" fill="currentColor" viewBox="0 0 24 24">
-                <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-2 15l-5-5 1.41-1.41L10 14.17l7.59-7.59L19 8l-9 9z"/>
-              </svg>
-              Connect with Coinbase Wallet
-            </button>
-
-            <div className="text-center">
-              <p className="text-gray-400 text-sm">
-                No wallet?{' '}
-                <a href="https://metamask.io/download/" target="_blank" rel="noopener noreferrer" className="text-green-400 hover:text-green-300 transition-colors duration-200">
-                  Install MetaMask
-                </a>
-              </p>
-            </div>
-          </div>
-        )}
-
-        {/* Email Tab */}
-        {activeTab === 'email' && (
-          <form onSubmit={handleEmailLogin} className="space-y-4">
-            <div>
-              <label className="block text-sm font-medium text-gray-300 mb-2">
-                Email
-              </label>
-              <input
-                type="email"
-                value={email}
-                onChange={(e) => setEmail(e.target.value)}
-                className="w-full px-3 py-3 bg-gray-800 border border-gray-700 rounded-lg text-white placeholder-gray-400 focus:outline-none focus:border-green-400 transition-colors duration-200"
-                placeholder="your@email.com"
-                required
-              />
-            </div>
-
-            <div>
-              <label className="block text-sm font-medium text-gray-300 mb-2">
-                Password
-              </label>
-              <input
-                type="password"
-                value={password}
-                onChange={(e) => setPassword(e.target.value)}
-                className="w-full px-3 py-3 bg-gray-800 border border-gray-700 rounded-lg text-white placeholder-gray-400 focus:outline-none focus:border-green-400 transition-colors duration-200"
-                placeholder="••••••••"
-                required
-              />
-            </div>
-
-            <div className="flex items-center justify-between">
-              <label className="flex items-center">
-                <input type="checkbox" className="rounded border-gray-600 text-green-500 focus:ring-green-500 bg-gray-800" />
-                <span className="ml-2 text-sm text-gray-300">Remember me</span>
-              </label>
-              <a href="#" className="text-sm text-green-400 hover:text-green-300 transition-colors duration-200">
-                Forgot password?
+          <div className="text-center">
+            <p className="text-gray-400 text-sm">
+              Pas de wallet?{' '}
+              <a href="https://www.socios.com/" target="_blank" rel="noopener noreferrer" className="text-green-400 hover:text-green-300 transition-colors duration-200">
+                Télécharger Socios
               </a>
-            </div>
-
-            <button
-              type="submit"
-              className="w-full bg-gradient-to-r from-green-500 to-emerald-500 hover:from-green-600 hover:to-emerald-600 text-white py-3 px-4 rounded-lg font-medium transition-all duration-200"
-            >
-              Sign In
-            </button>
-
-            <div className="text-center">
-              <p className="text-gray-400 text-sm">
-                No account?{' '}
-                <a href="#" className="text-green-400 hover:text-green-300 transition-colors duration-200">
-                  Sign up
-                </a>
-              </p>
-            </div>
-          </form>
-        )}
+            </p>
+            <p className="text-gray-500 text-xs mt-2">
+              Recommandé pour les fan tokens et l'écosystème sportif
+            </p>
+          </div>
+        </div>
 
         {/* Footer */}
         <div className="mt-8 pt-6 border-t border-gray-700">
           <p className="text-xs text-gray-500 text-center">
-            By connecting, you agree to our{' '}
+            En vous connectant, vous acceptez nos{' '}
             <a href="#" className="text-green-400 hover:text-green-300 transition-colors duration-200">
-              Terms of Service
+              Conditions d'utilisation
             </a>{' '}
-            and{' '}
+            et notre{' '}
             <a href="#" className="text-green-400 hover:text-green-300 transition-colors duration-200">
-              Privacy Policy
+              Politique de confidentialité
             </a>
           </p>
         </div>

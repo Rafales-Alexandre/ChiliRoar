@@ -1,6 +1,7 @@
 "use client";
 import React, { useState } from 'react';
 import Sidebar from '../../components/Sidebar';
+import { useToast } from '../contexts/ToastContext';
 
 // Function to generate avatars with DiceBear
 const generateAvatar = (name: string) => {
@@ -150,6 +151,7 @@ const userStats: UserStats = {
 // Component to display a mission
 function MissionCard({ mission }: { mission: Mission }) {
   const [isExpanded, setIsExpanded] = useState(false);
+  const { showSuccess, showError, showInfo } = useToast();
   
   const getDifficultyColor = (difficulty: string) => {
     switch (difficulty) {
@@ -251,11 +253,21 @@ function MissionCard({ mission }: { mission: Mission }) {
       {/* Action button */}
       <div className="flex gap-2">
         {mission.progress >= mission.maxProgress ? (
-          <button className="flex-1 bg-green-600 hover:bg-green-700 text-white py-2 px-4 rounded-lg font-medium transition-colors">
+          <button 
+            onClick={() => {
+              showSuccess(`Récompense réclamée ! Vous avez gagné ${mission.reward.amount} ${mission.reward.currency}`);
+            }}
+            className="flex-1 bg-green-600 hover:bg-green-700 text-white py-2 px-4 rounded-lg font-medium transition-colors"
+          >
             Claim Reward
           </button>
         ) : (
-          <button className="flex-1 bg-blue-600 hover:bg-blue-700 text-white py-2 px-4 rounded-lg font-medium transition-colors">
+          <button 
+            onClick={() => {
+              showInfo(`Mission "${mission.title}" démarrée !`);
+            }}
+            className="flex-1 bg-blue-600 hover:bg-blue-700 text-white py-2 px-4 rounded-lg font-medium transition-colors"
+          >
             Start Mission
           </button>
         )}
@@ -458,6 +470,7 @@ const earningOpportunities: EarningOpportunity[] = [
 ];
 
 export default function ChiliRoarEarnPage() {
+  const { showSuccess, showError, showInfo } = useToast();
   const [selectedCategory, setSelectedCategory] = useState<'all' | 'content' | 'trading' | 'community' | 'referral'>('all');
   const [selectedDifficulty, setSelectedDifficulty] = useState<'all' | 'easy' | 'medium' | 'hard'>('all');
 
@@ -631,6 +644,13 @@ export default function ChiliRoarEarnPage() {
               )}
 
               <button
+                onClick={() => {
+                  if (opportunity.status === 'available') {
+                    showInfo(`Opportunité "${opportunity.title}" démarrée !`);
+                  } else if (opportunity.status === 'in-progress') {
+                    showInfo(`Continuez votre progression dans "${opportunity.title}"`);
+                  }
+                }}
                 className={`w-full py-2 px-4 rounded-lg font-medium transition-colors ${
                   opportunity.status === 'available'
                     ? 'bg-green-600 hover:bg-green-700 text-white'

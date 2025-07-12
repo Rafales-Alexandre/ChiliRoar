@@ -3,7 +3,7 @@ import React, { useState, useMemo } from 'react';
 import FanTokenCard from '../../components/FanTokenCard';
 import FanTokenTable from '../../components/FanTokenTable';
 import { fanTokens, FanToken, getFanTokensByCategory, getFanTokensByCountry, getTopFanTokens } from '../fanTokens';
-import { useFanTokenPrices, useFanTokenHistory, useFanTokenMarketData } from '../hooks/useFanTokenData';
+import { useFanTokenMarketData, useFanTokenHistory } from '../hooks/useFanTokenData';
 import { HistoryPeriod } from '../types';
 import Sidebar from '../../components/Sidebar';
 
@@ -16,15 +16,9 @@ export default function FanTokensPage() {
   const [viewMode, setViewMode] = useState<'cards' | 'table'>('cards');
   const [chartPeriod, setChartPeriod] = useState<HistoryPeriod>('7d');
 
-  // Hook for dynamic prices
+  // Hook unifié pour toutes les données de marché (prix, variations, etc.)
   const tickers = useMemo(() => fanTokens.map(t => t.ticker), []);
-  const { data: prices, loading } = useFanTokenPrices(tickers);
-
-  // Hook for price history (sparklines)
-  const { data: historyData, loading: historyLoading } = useFanTokenHistory(tickers, chartPeriod);
-
-  // Hook for market data (variations)
-  const { data: marketData, loading: marketLoading } = useFanTokenMarketData(tickers);
+  const { data: marketData, loading, error } = useFanTokenMarketData(tickers);
 
   // Get unique categories and countries
   const categories = useMemo(() => {
@@ -68,8 +62,8 @@ export default function FanTokensPage() {
 
       switch (sortBy) {
         case 'price':
-          aValue = prices[a.ticker]?.price ?? a.price;
-          bValue = prices[b.ticker]?.price ?? b.price;
+          aValue = marketData[a.ticker]?.price ?? a.price;
+          bValue = marketData[b.ticker]?.price ?? b.price;
           break;
         case 'name':
           aValue = a.name.toLowerCase();
@@ -80,8 +74,8 @@ export default function FanTokensPage() {
           bValue = b.ticker.toLowerCase();
           break;
         default:
-          aValue = prices[a.ticker]?.price ?? a.price;
-          bValue = prices[b.ticker]?.price ?? b.price;
+          aValue = marketData[a.ticker]?.price ?? a.price;
+          bValue = marketData[b.ticker]?.price ?? b.price;
       }
 
       if (sortOrder === 'asc') {
@@ -92,7 +86,18 @@ export default function FanTokensPage() {
     });
 
     return filtered;
-  }, [searchTerm, selectedCategory, selectedCountry, sortBy, sortOrder, prices]);
+  }, [searchTerm, selectedCategory, selectedCountry, sortBy, sortOrder, marketData]);
+
+  // Nouveau : on charge la courbe pour les 3 premiers tokens filtrés
+  const selectedToken1 = filteredTokens[0]?.ticker;
+  const selectedToken2 = filteredTokens[1]?.ticker;
+  const selectedToken3 = filteredTokens[2]?.ticker;
+  const { data: historyData1, loading: historyLoading1, error: historyError1, isUsingFallback: isUsingFallback1 } = useFanTokenHistory(selectedToken1, chartPeriod);
+  const { data: historyData2, loading: historyLoading2, error: historyError2, isUsingFallback: isUsingFallback2 } = useFanTokenHistory(selectedToken2, chartPeriod);
+  const { data: historyData3, loading: historyLoading3, error: historyError3, isUsingFallback: isUsingFallback3 } = useFanTokenHistory(selectedToken3, chartPeriod);
+
+  // Gestion des erreurs 429
+  const isRateLimited = error?.message?.includes('Rate limit exceeded') || historyError1?.message?.includes('Rate limit exceeded') || historyError2?.message?.includes('Rate limit exceeded') || historyError3?.message?.includes('Rate limit exceeded');
 
   const topTokens = getTopFanTokens(5);
 
@@ -109,6 +114,43 @@ export default function FanTokensPage() {
             Discover and trade tokens of your favorite teams and clubs on Chiliz
           </p>
         </div>
+
+        {/* Message d'erreur pour les erreurs 429 */}
+        {isRateLimited && (
+          <div className="mb-6 p-4 bg-yellow-900 border border-yellow-700 rounded-lg">
+            <div className="flex items-center">
+              <img src="/flame.png" alt="Warning" className="w-5 h-5 mr-2" />
+              <p className="text-yellow-200">
+                Les données de prix sont temporairement indisponibles en raison de limitations de l'API. 
+                Veuillez réessayer dans quelques minutes.
+              </p>
+            </div>
+          </div>
+        )}
+
+        {/* Message pour les données de fallback */}
+        {(isUsingFallback1 || isUsingFallback2 || isUsingFallback3) && (
+          <div className="mb-6 p-4 bg-blue-900 border border-blue-700 rounded-lg">
+            <div className="flex items-center">
+              <img src="/flame.png" alt="Info" className="w-5 h-5 mr-2" />
+              <p className="text-blue-200">
+                Certains graphiques utilisent des données simulées en raison de limitations temporaires de l'API CoinGecko.
+              </p>
+            </div>
+          </div>
+        )}
+
+        {/* Message pour les vraies données */}
+        {!isUsingFallback1 && !isUsingFallback2 && !isUsingFallback3 && (selectedToken1 || selectedToken2 || selectedToken3) && (
+          <div className="mb-6 p-4 bg-green-900 border border-green-700 rounded-lg">
+            <div className="flex items-center">
+              <img src="/flame.png" alt="Success" className="w-5 h-5 mr-2" />
+              <p className="text-green-200">
+                Graphiques en temps réel : Les données proviennent directement de l'API CoinGecko.
+              </p>
+            </div>
+          </div>
+        )}
 
         {/* Top Tokens Section */}
         <div className="mb-8">
@@ -130,12 +172,12 @@ export default function FanTokensPage() {
                 )}
                 <FanTokenCard 
                   token={token} 
-                  price={prices[token.ticker]?.price} 
+                  price={marketData[token.ticker]?.price} 
                   loading={loading}
-                  historyData={historyData?.[token.ticker] ?? []}
-                  historyLoading={historyLoading}
-                  marketData={marketData?.[token.ticker]}
-                  marketLoading={marketLoading}
+                  historyData={[]} // Pas d'historique pour les top tokens
+                  historyLoading={false}
+                  marketData={marketData[token.ticker]}
+                  marketLoading={loading}
                 />
               </div>
             ))}
@@ -250,7 +292,7 @@ export default function FanTokensPage() {
               </div>
             </div>
 
-            {/* Chart period */}
+            {/* Chart period - réactivé */}
             <div>
               <label className="block text-sm font-medium text-gray-300 mb-2">
                 Chart period
@@ -275,34 +317,46 @@ export default function FanTokensPage() {
         <div className="mb-4">
           <p className="text-gray-400">
             Showing {filteredTokens.length} of {fanTokens.length} FanTokens
+            {(selectedToken1 || selectedToken2 || selectedToken3) && (
+              <span className="ml-2 text-yellow-400">
+                (Graphiques disponibles pour {selectedToken1}
+                {selectedToken2 && `, ${selectedToken2}`}
+                {selectedToken3 && `, ${selectedToken3}`}
+                {(isUsingFallback1 || isUsingFallback2 || isUsingFallback3) && " - données de démonstration"})
+              </span>
+            )}
           </p>
         </div>
 
         {/* Results */}
         {viewMode === 'cards' ? (
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
-            {filteredTokens.map(token => (
+            {filteredTokens.map((token, idx) => (
               <FanTokenCard 
                 key={token.id}
                 token={token} 
-                price={prices[token.ticker]?.price} 
+                price={marketData[token.ticker]?.price} 
                 loading={loading}
-                historyData={historyData?.[token.ticker] ?? []}
-                historyLoading={historyLoading}
-                marketData={marketData?.[token.ticker]}
-                marketLoading={marketLoading}
+                historyData={idx === 0 ? historyData1 : idx === 1 ? historyData2 : idx === 2 ? historyData3 : []}
+                historyLoading={idx === 0 ? historyLoading1 : idx === 1 ? historyLoading2 : idx === 2 ? historyLoading3 : false}
+                marketData={marketData[token.ticker]}
+                marketLoading={loading}
               />
             ))}
           </div>
         ) : (
           <FanTokenTable 
             tokens={filteredTokens}
-            prices={prices}
+            prices={marketData}
             loading={loading}
-            historyData={historyData}
-            historyLoading={historyLoading}
+            historyData={{
+              ...(selectedToken1 ? { [selectedToken1]: historyData1 } : {}),
+              ...(selectedToken2 ? { [selectedToken2]: historyData2 } : {}),
+              ...(selectedToken3 ? { [selectedToken3]: historyData3 } : {})
+            }}
+            historyLoading={historyLoading1 || historyLoading2 || historyLoading3}
             marketData={marketData}
-            marketLoading={marketLoading}
+            marketLoading={loading}
           />
         )}
 

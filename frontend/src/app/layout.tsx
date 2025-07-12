@@ -1,9 +1,11 @@
 import type { Metadata } from 'next'
 import { Inter } from 'next/font/google'
 import './globals.css'
-import { FanTokenDataProvider } from './contexts/FanTokenDataContext'
+import TwitterAuthDiagnostic from '../components/TwitterAuthDiagnostic'
 import { fanTokens } from './fanTokens'
 import { WalletProvider } from './contexts/WalletContext'
+import { AuthProvider } from './contexts/AuthContext'
+import { ToastProvider } from './contexts/ToastContext'
 
 const inter = Inter({ subsets: ['latin'] })
 
@@ -23,9 +25,12 @@ export default function RootLayout({
     <html lang="en">
       <body className={`${inter.className} bg-gray-950`}>
         <WalletProvider>
-          <FanTokenDataProvider tickers={allTickers}>
-            {children}
-          </FanTokenDataProvider>
+          <AuthProvider>
+            <ToastProvider>
+              {children}
+              <TwitterAuthDiagnostic />
+            </ToastProvider>
+          </AuthProvider>
         </WalletProvider>
       </body>
     </html>

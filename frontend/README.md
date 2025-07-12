@@ -69,6 +69,10 @@ npm start
 Créez un fichier `.env.local` à la racine du projet :
 
 ```env
+# Supabase Configuration (Authentification)
+NEXT_PUBLIC_SUPABASE_URL=https://your-project.supabase.co
+NEXT_PUBLIC_SUPABASE_ANON_KEY=your_supabase_anon_key
+
 # WalletConnect
 NEXT_PUBLIC_WALLETCONNECT_PROJECT_ID=your_project_id_here
 
@@ -88,6 +92,10 @@ NEXT_PUBLIC_MIXPANEL_TOKEN=your_mixpanel_token
 NEXT_PUBLIC_VAPID_PUBLIC_KEY=your_vapid_public_key
 ```
 
+### Configuration de l'Authentification
+
+Pour configurer l'authentification complète avec Google, GitHub, Twitter et Wallet, suivez le guide détaillé dans [AUTHENTICATION_SETUP.md](./AUTHENTICATION_SETUP.md).
+
 ## 🎨 Design System
 
 ### Couleurs ChiliRoar
@@ -104,6 +112,20 @@ NEXT_PUBLIC_VAPID_PUBLIC_KEY=your_vapid_public_key
 - **Cartes** : Design moderne avec ombres subtiles
 - **Formulaires** : Validation en temps réel
 - **Modales** : Animations fluides
+
+## 🔐 Authentification
+
+### Providers Supportés
+- **Google** - Connexion avec compte Google
+- **GitHub** - Connexion avec compte GitHub  
+- **Twitter** - Connexion avec compte Twitter
+- **Wallet** - Connexion avec MetaMask ou autres wallets
+
+### Fonctionnalités
+- Authentification unifiée avec Supabase
+- Gestion des sessions sécurisées
+- Protection des routes avec RLS
+- Synchronisation automatique wallet/utilisateur
 
 ## 🔗 Intégration Web3
 

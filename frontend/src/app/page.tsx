@@ -3,6 +3,10 @@ import React, { useState, useEffect, useRef } from 'react';
 import Link from 'next/link';
 import LoginModal from '../components/LoginModal';
 import { useWallet } from './contexts/WalletContext';
+import { useAuth } from './contexts/AuthContext';
+import MissingConfig from '../components/MissingConfig';
+import AuthTest from '../components/AuthTest';
+import { useRouter } from 'next/navigation';
 
 export default function HomePage() {
   const [showLoginModal, setShowLoginModal] = useState(false);
@@ -11,17 +15,25 @@ export default function HomePage() {
   const videoRef = useRef<HTMLVideoElement>(null);
   
   const { isConnected, account } = useWallet();
+  const { user, isLoading: authLoading, error: authError } = useAuth();
+  const router = useRouter();
 
   useEffect(() => {
-    // Show login modal after 2 seconds only if not connected
-    if (!isConnected) {
+    if (user && !authLoading) {
+      router.replace('/dashboard');
+    }
+  }, [user, authLoading, router]);
+
+  useEffect(() => {
+    // Show login modal after 2 seconds only if not authenticated
+    if (!user && !authLoading) {
       const loginTimer = setTimeout(() => {
         setShowLoginModal(true);
       }, 2000);
 
       return () => clearTimeout(loginTimer);
     }
-  }, [isConnected]);
+  }, [user, authLoading]);
 
   // Start video as soon as it's loaded
   const handleVideoLoaded = () => {
@@ -35,6 +47,11 @@ export default function HomePage() {
     setVideoError(true);
     setIsVideoLoaded(true);
   };
+
+  // Afficher le composant de configuration manquante si nécessaire
+  if (authError === 'Configuration manquante') {
+    return <MissingConfig />;
+  }
 
   return (
     <div className="relative min-h-screen overflow-hidden">
@@ -96,11 +113,11 @@ export default function HomePage() {
           </div>
           
           <div className="flex items-center gap-4">
-            {isConnected ? (
+            {user ? (
               <div className="flex items-center gap-3">
                 <div className="bg-green-600 px-3 py-2 rounded-lg text-white text-sm font-medium">
                   <img src="/dashboard.png" alt="Connected" className="w-4 h-4 inline mr-2" />
-                  {account?.slice(0, 6)}...{account?.slice(-4)}
+                  {user.name || user.email || 'Utilisateur'}
                 </div>
                 <Link
                   href="/dashboard"
@@ -114,7 +131,7 @@ export default function HomePage() {
                 onClick={() => setShowLoginModal(true)}
                 className="bg-green-600 hover:bg-green-700 text-white px-6 py-2 rounded-lg font-medium transition-colors duration-200"
               >
-                Connect
+                Se connecter
               </button>
             )}
           </div>
@@ -135,13 +152,13 @@ export default function HomePage() {
             </p>
 
             <div className="flex flex-col sm:flex-row gap-4 justify-center items-center">
-              {isConnected ? (
+              {user ? (
                 <Link
                   href="/dashboard"
                   className="bg-gradient-to-r from-green-500 to-emerald-500 hover:from-green-600 hover:to-emerald-600 text-white px-8 py-4 rounded-lg text-lg font-semibold transition-all duration-200 transform hover:scale-105 flex items-center justify-center"
                 >
                   <img src='dashboard.png' alt='Dashboard' className='w-8 h-8 mr-3' />
-                  Access Dashboard
+                  Accéder au Dashboard
                 </Link>
               ) : (
                 <button
@@ -149,7 +166,7 @@ export default function HomePage() {
                   className="bg-gradient-to-r from-green-500 to-emerald-500 hover:from-green-600 hover:to-emerald-600 text-white px-8 py-4 rounded-lg text-lg font-semibold transition-all duration-200 transform hover:scale-105 flex items-center justify-center"
                 >
                   <img src="/arena.png" alt="Start" className="w-8 h-8 mr-3" />
-                  Start the Adventure
+                  Commencer l'Aventure
                 </button>
               )}
               
@@ -255,11 +272,17 @@ export default function HomePage() {
         </footer>
       </div>
 
+      {/* Test d'Authentification */}
+      <div className="fixed bottom-4 right-4 z-50">
+        <AuthTest />
+      </div>
+
       {/* Login Modal */}
       <LoginModal 
         isOpen={showLoginModal} 
         onClose={() => setShowLoginModal(false)} 
       />
+      
     </div>
   );
 } 

@@ -7,6 +7,7 @@ interface WalletContextType {
   chainId: string | null;
   connectWallet: () => Promise<void>;
   disconnectWallet: () => void;
+  resetDisconnectState: () => void;
   isLoading: boolean;
   error: string | null;
 }
@@ -31,16 +32,22 @@ export function WalletProvider({ children }: WalletProviderProps) {
   const [chainId, setChainId] = useState<string | null>(null);
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [isManuallyDisconnected, setIsManuallyDisconnected] = useState(false);
 
-  // Check if MetaMask is installed
-  const checkIfMetaMaskInstalled = () => {
+  // Check if wallet is installed (MetaMask or other)
+  const checkIfWalletInstalled = () => {
     return typeof window !== 'undefined' && typeof window.ethereum !== 'undefined';
   };
 
   // Check if user is already connected
   useEffect(() => {
     const checkConnection = async () => {
-      if (checkIfMetaMaskInstalled() && window.ethereum) {
+      // Ne pas vérifier si l'utilisateur s'est déconnecté manuellement
+      if (isManuallyDisconnected) {
+        return;
+      }
+      
+      if (checkIfWalletInstalled() && window.ethereum) {
         try {
           const accounts = await window.ethereum.request({ method: 'eth_accounts' });
           if (accounts.length > 0) {
@@ -57,11 +64,11 @@ export function WalletProvider({ children }: WalletProviderProps) {
     };
 
     checkConnection();
-  }, []);
+  }, [isManuallyDisconnected]);
 
   // Listen for account changes
   useEffect(() => {
-    if (checkIfMetaMaskInstalled() && window.ethereum) {
+    if (checkIfWalletInstalled() && window.ethereum) {
       const handleAccountsChanged = (accounts: string[]) => {
         if (accounts.length === 0) {
           // User disconnected
@@ -98,8 +105,8 @@ export function WalletProvider({ children }: WalletProviderProps) {
     setError(null);
 
     try {
-      if (!checkIfMetaMaskInstalled() || !window.ethereum) {
-        throw new Error('MetaMask is not installed. Please install MetaMask to continue.');
+      if (!checkIfWalletInstalled() || !window.ethereum) {
+        throw new Error('Aucun wallet détecté. Veuillez installer Socios ou un autre wallet compatible pour continuer.');
       }
 
       // Request connection
@@ -121,22 +128,58 @@ export function WalletProvider({ children }: WalletProviderProps) {
       console.error('Connection error:', err);
       
       if (err.code === 4001) {
-        setError('Connection cancelled by user');
+        setError('Connexion annulée par l\'utilisateur');
       } else if (err.code === -32002) {
-        setError('Please unlock MetaMask and try again');
+        setError('Veuillez déverrouiller votre wallet et réessayer');
       } else {
-        setError(err.message || 'Error during connection');
+        setError(err.message || 'Erreur lors de la connexion');
       }
     } finally {
       setIsLoading(false);
     }
   };
 
-  const disconnectWallet = () => {
-    setIsConnected(false);
-    setAccount(null);
-    setChainId(null);
-    setError(null);
+  const disconnectWallet = async () => {
+    try {
+      // Marquer comme déconnecté manuellement
+      setIsManuallyDisconnected(true);
+      
+      // Nettoyer l'état local
+      setIsConnected(false);
+      setAccount(null);
+      setChainId(null);
+      setError(null);
+      
+      // Essayer de déconnecter le wallet (si supporté)
+      if (checkIfWalletInstalled() && window.ethereum) {
+        try {
+          // Certains wallets supportent cette méthode
+          if (window.ethereum.disconnect) {
+            await window.ethereum.disconnect();
+          }
+        } catch (err) {
+          console.log('Déconnexion wallet non supportée, utilisation de l\'état local uniquement');
+        }
+      }
+      
+      // Forcer la mise à jour de l'état
+      setTimeout(() => {
+        setIsConnected(false);
+        setAccount(null);
+        setChainId(null);
+      }, 100);
+      
+    } catch (error) {
+      console.error('Error disconnecting wallet:', error);
+      // En cas d'erreur, forcer quand même la déconnexion locale
+      setIsConnected(false);
+      setAccount(null);
+      setChainId(null);
+    }
+  };
+
+  const resetDisconnectState = () => {
+    setIsManuallyDisconnected(false);
   };
 
   const value: WalletContextType = {
@@ -145,6 +188,7 @@ export function WalletProvider({ children }: WalletProviderProps) {
     chainId,
     connectWallet,
     disconnectWallet,
+    resetDisconnectState,
     isLoading,
     error,
   };
