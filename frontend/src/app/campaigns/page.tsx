@@ -220,7 +220,11 @@ export default function CampaignsPage() {
       if (result.success) {
         showSuccess(`Inscription réussie à la campagne "${selectedCampaign.name}" ! Vous pouvez maintenant participer en utilisant les hashtags requis.`);
         // Mettre à jour l'état local
-        setUserRegistrations(prev => new Set([...prev, selectedCampaign.id]));
+        setUserRegistrations(prev => {
+          const newSet = new Set(prev);
+          newSet.add(selectedCampaign.id);
+          return newSet;
+        });
         setShowRegistrationModal(false);
         setTwitterHandle('');
         
