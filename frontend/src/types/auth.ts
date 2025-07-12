@@ -20,6 +20,7 @@ export interface AuthContextType extends AuthState {
   signInWithWallet: (address: string) => Promise<void>
   signOut: () => Promise<void>
   refreshUser: () => Promise<void>
+  forceRefreshSession: () => Promise<void>
 }
 
 export interface LoginProvider {

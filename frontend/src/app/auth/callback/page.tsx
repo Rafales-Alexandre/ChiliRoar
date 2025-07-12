@@ -135,18 +135,27 @@ export default function CallbackPage() {
           // Créer ou mettre à jour le profil utilisateur
           await createUserProfile(data.user);
           
+          // Déclencher un événement pour notifier l'AuthContext
+          window.dispatchEvent(new CustomEvent('userProfileCreated', {
+            detail: { userId: data.user.id }
+          }));
+          
           setStatus('success');
+          
+          // Attendre un peu plus pour laisser le temps à l'AuthContext de se mettre à jour
           setTimeout(() => {
+            console.log('🔄 Redirection vers:', next);
             router.push(next);
-          }, 1500);
+          }, 2000);
           return;
         } catch (profileError) {
           console.error('❌ Erreur création profil:', profileError);
           // Continuer quand même vers le dashboard
           setStatus('success');
           setTimeout(() => {
+            console.log('🔄 Redirection vers:', next, '(avec erreur profil)');
             router.push(next);
-          }, 1500);
+          }, 2000);
           return;
         }
       }
@@ -221,9 +230,15 @@ export default function CallbackPage() {
             <>
               <div className="text-green-400 text-4xl mb-4">✅</div>
               <p className="text-gray-300">Connexion réussie !</p>
-              <p className="text-gray-500 text-sm mt-2">
+              <p className="text-gray-500 text-sm mt-2 mb-4">
                 Redirection vers le dashboard...
               </p>
+              <button
+                onClick={() => router.push(next)}
+                className="bg-blue-600 hover:bg-blue-700 text-white px-6 py-2 rounded-lg font-medium transition-colors duration-200"
+              >
+                Continuer manuellement
+              </button>
             </>
           )}
           

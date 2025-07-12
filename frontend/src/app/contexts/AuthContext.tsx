@@ -42,11 +42,12 @@ export function AuthProvider({ children }: AuthProviderProps) {
         signInWithWallet: async () => {},
         signOut: async () => {},
         refreshUser: async () => {},
+        forceRefreshSession: async () => {},
       }}>
-        {children}
-      </AuthContext.Provider>
-    );
-  }
+              {children}
+    </AuthContext.Provider>
+  );
+}
 
   // Vérifier la session au chargement
   useEffect(() => {
@@ -118,7 +119,21 @@ export function AuthProvider({ children }: AuthProviderProps) {
       }
     );
 
-    return () => subscription.unsubscribe();
+    // Écouter l'événement de création de profil
+    const handleProfileCreated = (event: CustomEvent) => {
+      console.log('📢 Événement profil créé reçu:', event.detail.userId);
+      // Forcer la vérification de session
+      setTimeout(() => {
+        forceRefreshSession();
+      }, 500);
+    };
+
+    window.addEventListener('userProfileCreated', handleProfileCreated as EventListener);
+
+    return () => {
+      subscription.unsubscribe();
+      window.removeEventListener('userProfileCreated', handleProfileCreated as EventListener);
+    };
   }, []);
 
   // Synchroniser avec le wallet connecté
@@ -352,6 +367,29 @@ export function AuthProvider({ children }: AuthProviderProps) {
     }
   };
 
+  const forceRefreshSession = async () => {
+    console.log('🔄 Rafraîchissement forcé de la session...');
+    setIsLoading(true);
+    
+    try {
+      const { data: { session }, error } = await supabase.auth.getSession();
+      
+      if (error) {
+        console.error('Erreur lors du rafraîchissement:', error);
+        setError(error.message);
+      } else if (session?.user) {
+        console.log('Session rafraîchie:', session.user.id);
+        await fetchUserProfile(session.user.id);
+      } else {
+        console.log('Aucune session trouvée lors du rafraîchissement');
+      }
+    } catch (err) {
+      console.error('Erreur lors du rafraîchissement forcé:', err);
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
   const value: AuthContextType = {
     user,
     isLoading,
@@ -360,6 +398,7 @@ export function AuthProvider({ children }: AuthProviderProps) {
     signInWithWallet,
     signOut,
     refreshUser,
+    forceRefreshSession,
   };
 
   return (
