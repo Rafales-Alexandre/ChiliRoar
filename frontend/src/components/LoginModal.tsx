@@ -14,7 +14,7 @@ const loginProviders: LoginProvider[] = [
   {
     id: 'twitter',
     name: 'Twitter',
-    icon: '🐦',
+            icon: <img src="/twitter.png" alt="Twitter" className="w-5 h-5" />,
     color: 'from-blue-400 to-blue-500',
     gradient: 'hover:from-blue-500 hover:to-blue-600'
   },
@@ -247,7 +247,7 @@ export default function LoginModal({ isOpen, onClose }: LoginModalProps) {
             {authLoading ? (
               <div className="w-5 h-5 border-2 border-white border-t-transparent rounded-full animate-spin"></div>
             ) : (
-              <span className="text-xl">🐦</span>
+                              <img src="/twitter.png" alt="Twitter" className="w-5 h-5" />
             )}
             {authLoading ? 'Connexion...' : 'Se connecter avec Twitter'}
           </button>

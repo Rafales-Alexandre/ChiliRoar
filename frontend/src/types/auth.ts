@@ -1,3 +1,5 @@
+import React from 'react'
+
 export interface User {
   id: string
   email?: string
@@ -26,7 +28,7 @@ export interface AuthContextType extends AuthState {
 export interface LoginProvider {
   id: 'twitter' | 'wallet'
   name: string
-  icon: string
+  icon: string | React.ReactNode
   color: string
   gradient: string
 } 

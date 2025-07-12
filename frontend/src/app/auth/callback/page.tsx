@@ -210,7 +210,7 @@ export default function CallbackPage() {
             <h2 className="text-2xl font-bold text-white">ChiliRoar</h2>
           </div>
           <div className="text-blue-400 font-medium mb-2">
-            🐦 Connexion Twitter
+                          <img src="/twitter.png" alt="Twitter" className="w-5 h-5 inline mr-2" />Connexion Twitter
           </div>
         </div>
 
