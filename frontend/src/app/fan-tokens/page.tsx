@@ -19,6 +19,7 @@ export default function FanTokensPage() {
   // Hook unifié pour toutes les données de marché (prix, variations, etc.)
   const tickers = useMemo(() => fanTokens.map(t => t.ticker), []);
   const { data: marketData, loading, error } = useFanTokenMarketData(tickers);
+  const marketDataTyped = marketData as any;
 
   // Get unique categories and countries
   const categories = useMemo(() => {
@@ -62,8 +63,8 @@ export default function FanTokensPage() {
 
       switch (sortBy) {
         case 'price':
-          aValue = marketData[a.ticker]?.price ?? a.price;
-          bValue = marketData[b.ticker]?.price ?? b.price;
+          aValue = marketDataTyped[a.ticker]?.price ?? a.price;
+          bValue = marketDataTyped[b.ticker]?.price ?? b.price;
           break;
         case 'name':
           aValue = a.name.toLowerCase();
@@ -74,8 +75,8 @@ export default function FanTokensPage() {
           bValue = b.ticker.toLowerCase();
           break;
         default:
-          aValue = marketData[a.ticker]?.price ?? a.price;
-          bValue = marketData[b.ticker]?.price ?? b.price;
+          aValue = marketDataTyped[a.ticker]?.price ?? a.price;
+          bValue = marketDataTyped[b.ticker]?.price ?? b.price;
       }
 
       if (sortOrder === 'asc') {
@@ -172,11 +173,11 @@ export default function FanTokensPage() {
                 )}
                 <FanTokenCard 
                   token={token} 
-                  price={marketData[token.ticker]?.price} 
+                  price={marketDataTyped[token.ticker]?.price} 
                   loading={loading}
                   historyData={[]} // Pas d'historique pour les top tokens
                   historyLoading={false}
-                  marketData={marketData[token.ticker]}
+                  marketData={marketDataTyped[token.ticker]}
                   marketLoading={loading}
                 />
               </div>
@@ -335,11 +336,11 @@ export default function FanTokensPage() {
               <FanTokenCard 
                 key={token.id}
                 token={token} 
-                price={marketData[token.ticker]?.price} 
+                price={marketDataTyped[token.ticker]?.price} 
                 loading={loading}
                 historyData={idx === 0 ? historyData1 : idx === 1 ? historyData2 : idx === 2 ? historyData3 : []}
                 historyLoading={idx === 0 ? historyLoading1 : idx === 1 ? historyLoading2 : idx === 2 ? historyLoading3 : false}
-                marketData={marketData[token.ticker]}
+                marketData={marketDataTyped[token.ticker]}
                 marketLoading={loading}
               />
             ))}
@@ -347,7 +348,7 @@ export default function FanTokensPage() {
         ) : (
           <FanTokenTable 
             tokens={filteredTokens}
-            prices={marketData}
+            prices={marketDataTyped}
             loading={loading}
             historyData={{
               ...(selectedToken1 ? { [selectedToken1]: historyData1 } : {}),
@@ -355,7 +356,7 @@ export default function FanTokensPage() {
               ...(selectedToken3 ? { [selectedToken3]: historyData3 } : {})
             }}
             historyLoading={historyLoading1 || historyLoading2 || historyLoading3}
-            marketData={marketData}
+            marketData={marketDataTyped}
             marketLoading={loading}
           />
         )}

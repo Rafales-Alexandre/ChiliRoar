@@ -317,7 +317,7 @@ function WinnersHistory({ winners }: { winners: Winner[] }) {
 export default function RafflesPage() {
   const { user } = useAuth();
   const { isConnected, account } = useWallet();
-  const { showSuccess, showError, showInfo, showLoading } = useToast();
+  const { showSuccess, showError, showInfo, showWarning, showLoading } = useToast();
   const [selectedFilter, setSelectedFilter] = useState<'all' | 'active' | 'upcoming' | 'completed'>('all');
   const [userRoarPoints, setUserRoarPoints] = useState(1250); // Mock data
 

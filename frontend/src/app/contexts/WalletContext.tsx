@@ -150,24 +150,9 @@ export function WalletProvider({ children }: WalletProviderProps) {
       setChainId(null);
       setError(null);
       
-      // Essayer de déconnecter le wallet (si supporté)
-      if (checkIfWalletInstalled() && window.ethereum) {
-        try {
-          // Certains wallets supportent cette méthode
-          if (window.ethereum.disconnect) {
-            await window.ethereum.disconnect();
-          }
-        } catch (err) {
-          console.log('Déconnexion wallet non supportée, utilisation de l\'état local uniquement');
-        }
-      }
-      
-      // Forcer la mise à jour de l'état
-      setTimeout(() => {
-        setIsConnected(false);
-        setAccount(null);
-        setChainId(null);
-      }, 100);
+      // Note: La plupart des wallets ne supportent pas la déconnexion programmatique
+      // L'utilisateur doit se déconnecter manuellement depuis son wallet
+      console.log('Wallet déconnecté localement. Pour une déconnexion complète, utilisez votre wallet.');
       
     } catch (error) {
       console.error('Error disconnecting wallet:', error);

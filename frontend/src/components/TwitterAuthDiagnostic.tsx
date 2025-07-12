@@ -40,7 +40,7 @@ export default function TwitterAuthDiagnostic() {
       });
     } catch (error) {
       console.error('Erreur diagnostic:', error);
-      setDiagnosticInfo({ error: error.message });
+      setDiagnosticInfo({ error: error instanceof Error ? error.message : 'Erreur inconnue' });
     }
   };
 
@@ -108,7 +108,7 @@ export default function TwitterAuthDiagnostic() {
               <h4 className="text-green-400 font-semibold">Variables d'environnement:</h4>
               {diagnosticInfo?.envVars && Object.entries(diagnosticInfo.envVars).map(([key, value]) => (
                 <div key={key} className="text-gray-300">
-                  <span className="font-mono text-xs">{key}:</span> {value}
+                  <span className="font-mono text-xs">{key}:</span> {String(value)}
                 </div>
               ))}
             </div>

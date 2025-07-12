@@ -30,24 +30,25 @@ export default function Dashboard() {
   const loadingHistory = false;
 
   // Top FanTokens Gainers (24h variation)
+  const marketDataTyped = marketData as any;
   const topGainers = [
-    { name: 'OG', value: marketData['OG']?.change24h !== undefined ? `${marketData['OG'].change24h.toFixed(2)}%` : '15.2%', delta: '+1520bps', color: 'bg-purple-600', variation: marketData['OG']?.change24h },
-    { name: 'ASR', value: marketData['ASR']?.change24h !== undefined ? `${marketData['ASR'].change24h.toFixed(2)}%` : '12.8%', delta: '+1280bps', color: 'bg-red-600', variation: marketData['ASR']?.change24h },
-    { name: 'PSG', value: marketData['PSG']?.change24h !== undefined ? `${marketData['PSG'].change24h.toFixed(2)}%` : '8.5%', delta: '+850bps', color: 'bg-blue-600', variation: marketData['PSG']?.change24h },
-    { name: 'GAL', value: marketData['GAL']?.change24h !== undefined ? `${marketData['GAL'].change24h.toFixed(2)}%` : '6.3%', delta: '+630bps', color: 'bg-yellow-500', variation: marketData['GAL']?.change24h },
-    { name: 'BAR', value: marketData['BAR']?.change24h !== undefined ? `${marketData['BAR'].change24h.toFixed(2)}%` : '5.7%', delta: '+570bps', color: 'bg-red-500', variation: marketData['BAR']?.change24h },
-    { name: 'JUV', value: marketData['JUV']?.change24h !== undefined ? `${marketData['JUV'].change24h.toFixed(2)}%` : '4.2%', delta: '+420bps', color: 'bg-black', variation: marketData['JUV']?.change24h },
-    { name: 'CITY', value: marketData['CITY']?.change24h !== undefined ? `${marketData['CITY'].change24h.toFixed(2)}%` : '3.8%', delta: '+380bps', color: 'bg-blue-500', variation: marketData['CITY']?.change24h },
-    { name: 'ATM', value: marketData['ATM']?.change24h !== undefined ? `${marketData['ATM'].change24h.toFixed(2)}%` : '2.9%', delta: '+290bps', color: 'bg-red-400', variation: marketData['ATM']?.change24h },
-    { name: 'ACM', value: marketData['ACM']?.change24h !== undefined ? `${marketData['ACM'].change24h.toFixed(2)}%` : '2.1%', delta: '+210bps', color: 'bg-red-600', variation: marketData['ACM']?.change24h },
-    { name: 'INTER', value: marketData['INTER']?.change24h !== undefined ? `${marketData['INTER'].change24h.toFixed(2)}%` : '1.5%', delta: '+150bps', color: 'bg-blue-600', variation: marketData['INTER']?.change24h },
+    { name: 'OG', value: marketDataTyped['OG']?.change24h !== undefined ? `${marketDataTyped['OG'].change24h.toFixed(2)}%` : '15.2%', delta: '+1520bps', color: 'bg-purple-600', variation: marketDataTyped['OG']?.change24h },
+    { name: 'ASR', value: marketDataTyped['ASR']?.change24h !== undefined ? `${marketDataTyped['ASR'].change24h.toFixed(2)}%` : '12.8%', delta: '+1280bps', color: 'bg-red-600', variation: marketDataTyped['ASR']?.change24h },
+    { name: 'PSG', value: marketDataTyped['PSG']?.change24h !== undefined ? `${marketDataTyped['PSG'].change24h.toFixed(2)}%` : '8.5%', delta: '+850bps', color: 'bg-blue-600', variation: marketDataTyped['PSG']?.change24h },
+    { name: 'GAL', value: marketDataTyped['GAL']?.change24h !== undefined ? `${marketDataTyped['GAL'].change24h.toFixed(2)}%` : '6.3%', delta: '+630bps', color: 'bg-yellow-500', variation: marketDataTyped['GAL']?.change24h },
+    { name: 'BAR', value: marketDataTyped['BAR']?.change24h !== undefined ? `${marketDataTyped['BAR'].change24h.toFixed(2)}%` : '5.7%', delta: '+570bps', color: 'bg-red-500', variation: marketDataTyped['BAR']?.change24h },
+    { name: 'JUV', value: marketDataTyped['JUV']?.change24h !== undefined ? `${marketDataTyped['JUV'].change24h.toFixed(2)}%` : '4.2%', delta: '+420bps', color: 'bg-black', variation: marketDataTyped['JUV']?.change24h },
+    { name: 'CITY', value: marketDataTyped['CITY']?.change24h !== undefined ? `${marketDataTyped['CITY'].change24h.toFixed(2)}%` : '3.8%', delta: '+380bps', color: 'bg-blue-500', variation: marketDataTyped['CITY']?.change24h },
+    { name: 'ATM', value: marketDataTyped['ATM']?.change24h !== undefined ? `${marketDataTyped['ATM'].change24h.toFixed(2)}%` : '2.9%', delta: '+290bps', color: 'bg-red-400', variation: marketDataTyped['ATM']?.change24h },
+    { name: 'ACM', value: marketDataTyped['ACM']?.change24h !== undefined ? `${marketDataTyped['ACM'].change24h.toFixed(2)}%` : '2.1%', delta: '+210bps', color: 'bg-red-600', variation: marketDataTyped['ACM']?.change24h },
+    { name: 'INTER', value: marketDataTyped['INTER']?.change24h !== undefined ? `${marketDataTyped['INTER'].change24h.toFixed(2)}%` : '1.5%', delta: '+150bps', color: 'bg-blue-600', variation: marketDataTyped['INTER']?.change24h },
   ];
 
   // Top FanTokens Losers (24h variation)
   const topLosers = [
-    { name: 'SPURS', value: marketData['SPURS']?.change24h !== undefined ? `${marketData['SPURS'].change24h.toFixed(2)}%` : '3.2%', delta: '-320bps', color: 'bg-white', variation: marketData['SPURS']?.change24h },
-    { name: 'EFC', value: marketData['EFC']?.change24h !== undefined ? `${marketData['EFC'].change24h.toFixed(2)}%` : '2.8%', delta: '-280bps', color: 'bg-blue-600', variation: marketData['EFC']?.change24h },
-    { name: 'LUFC', value: marketData['LUFC']?.change24h !== undefined ? `${marketData['LUFC'].change24h.toFixed(2)}%` : '2.1%', delta: '-210bps', color: 'bg-yellow-500', variation: marketData['LUFC']?.change24h },
+    { name: 'SPURS', value: marketDataTyped['SPURS']?.change24h !== undefined ? `${marketDataTyped['SPURS'].change24h.toFixed(2)}%` : '3.2%', delta: '-320bps', color: 'bg-white', variation: marketDataTyped['SPURS']?.change24h },
+    { name: 'EFC', value: marketDataTyped['EFC']?.change24h !== undefined ? `${marketDataTyped['EFC'].change24h.toFixed(2)}%` : '2.8%', delta: '-280bps', color: 'bg-blue-600', variation: marketDataTyped['EFC']?.change24h },
+    { name: 'LUFC', value: marketDataTyped['LUFC']?.change24h !== undefined ? `${marketDataTyped['LUFC'].change24h.toFixed(2)}%` : '2.1%', delta: '-210bps', color: 'bg-yellow-500', variation: marketDataTyped['LUFC']?.change24h },
   ];
 
   // Top Roars Performers (based on Roars data)
@@ -65,14 +66,15 @@ export default function Dashboard() {
   ];
 
   // Data for Treemap (24h variation + price in small + history)
+  const historyDataTyped = historyData as any;
   const treemapData = treemapTickers.map(ticker => ({
     name: ticker,
-    value: marketData[ticker]?.change24h ?? 0,
-    price: marketData[ticker]?.price,
+    value: marketDataTyped[ticker]?.change24h ?? 0,
+    price: marketDataTyped[ticker]?.price,
     color: getColorForTicker(ticker),
     crown: getCrownForTicker(ticker),
     icon: getIconForTicker(ticker),
-    history: historyData[ticker] ?? [],
+    history: historyDataTyped[ticker] ?? [],
   }));
 
   function getColorForTicker(ticker: string) {

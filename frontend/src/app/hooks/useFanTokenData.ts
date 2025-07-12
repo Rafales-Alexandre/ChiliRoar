@@ -51,8 +51,6 @@ const coingeckoMap: Record<string, string> = {
 // Helper pour obtenir le nombre de jours en fonction de la période
 const getDays = (period: HistoryPeriod) => {
   switch (period) {
-    case '1h':
-      return 1;
     case '24h':
       return 1;
     case '7d':

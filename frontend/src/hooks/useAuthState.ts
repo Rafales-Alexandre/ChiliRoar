@@ -13,8 +13,6 @@ export function useAuthState() {
     error: auth.error || wallet.error,
 
     // Méthodes d'authentification
-    signInWithGoogle: auth.signInWithGoogle,
-    signInWithGithub: auth.signInWithGithub,
     signInWithTwitter: auth.signInWithTwitter,
     signInWithWallet: auth.signInWithWallet,
     signOut: auth.signOut,

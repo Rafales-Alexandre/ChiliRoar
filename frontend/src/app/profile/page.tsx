@@ -5,7 +5,7 @@ import { useWallet } from "../contexts/WalletContext";
 import Link from "next/link";
 
 export default function ProfilePage() {
-  const { user, isLoading, error, signInWithGoogle, signInWithGithub, signInWithTwitter, signInWithWallet, refreshUser } = useAuth();
+  const { user, isLoading, error, signInWithTwitter, signInWithWallet, refreshUser } = useAuth();
   const { account, isConnected, connectWallet } = useWallet();
   const [linkingWallet, setLinkingWallet] = useState(false);
   const [linkingProvider, setLinkingProvider] = useState<string | null>(null);
@@ -34,13 +34,11 @@ export default function ProfilePage() {
   };
 
   // Lier un provider OAuth à un compte wallet
-  const handleLinkProvider = async (provider: "google" | "github" | "twitter") => {
+  const handleLinkProvider = async (provider: "twitter") => {
     setLinkingProvider(provider);
     setLocalError(null);
     setSuccess(null);
     try {
-      if (provider === "google") await signInWithGoogle();
-      if (provider === "github") await signInWithGithub();
       if (provider === "twitter") await signInWithTwitter();
       await refreshUser();
       setSuccess("Provider lié avec succès !");
@@ -112,25 +110,11 @@ export default function ProfilePage() {
             <div className="mb-2 text-gray-700 font-semibold">Lier un compte :</div>
             <div className="flex gap-4">
               <button
-                onClick={() => handleLinkProvider("google")}
-                disabled={linkingProvider === "google"}
-                className="bg-red-600 hover:bg-red-700 text-white px-4 py-2 rounded-lg font-semibold flex-1"
-              >
-                {linkingProvider === "google" ? "Connexion..." : "Google"}
-              </button>
-              <button
-                onClick={() => handleLinkProvider("github")}
-                disabled={linkingProvider === "github"}
-                className="bg-gray-800 hover:bg-gray-900 text-white px-4 py-2 rounded-lg font-semibold flex-1"
-              >
-                {linkingProvider === "github" ? "Connexion..." : "GitHub"}
-              </button>
-              <button
                 onClick={() => handleLinkProvider("twitter")}
                 disabled={linkingProvider === "twitter"}
-                className="bg-blue-400 hover:bg-blue-500 text-white px-4 py-2 rounded-lg font-semibold flex-1"
+                className="bg-blue-400 hover:bg-blue-500 text-white px-4 py-2 rounded-lg font-semibold w-full"
               >
-                {linkingProvider === "twitter" ? "Connexion..." : "Twitter"}
+                {linkingProvider === "twitter" ? "Connexion..." : "⚽ Se connecter avec Twitter"}
               </button>
             </div>
           </div>
