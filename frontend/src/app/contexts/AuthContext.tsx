@@ -146,18 +146,26 @@ export function AuthProvider({ children }: AuthProviderProps) {
 
   const createUserProfile = async (authUser: any) => {
     try {
+      // Gérer les utilisateurs Twitter sans email
+      const userName = authUser.user_metadata?.full_name || 
+                      authUser.user_metadata?.name || 
+                      authUser.user_metadata?.user_name || 
+                      `Utilisateur ${authUser.id.slice(0, 8)}`;
+      
+      const profileData = {
+        id: authUser.id,
+        email: authUser.email || null, // Permettre null pour Twitter
+        name: userName,
+        avatar_url: authUser.user_metadata?.avatar_url,
+        provider: authUser.app_metadata?.provider,
+        wallet_address: account || null,
+      };
+
+      console.log('Création du profil utilisateur:', profileData);
+
       const { data, error } = await supabase
         .from('profiles')
-        .insert([
-          {
-            id: authUser.id,
-            email: authUser.email,
-            name: authUser.user_metadata?.full_name || authUser.user_metadata?.name,
-            avatar_url: authUser.user_metadata?.avatar_url,
-            provider: authUser.app_metadata?.provider,
-            wallet_address: account || null,
-          }
-        ])
+        .insert([profileData])
         .select()
         .single();
 
