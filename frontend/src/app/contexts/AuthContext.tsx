@@ -234,7 +234,7 @@ export function AuthProvider({ children }: AuthProviderProps) {
         provider: 'twitter',
         options: {
           redirectTo: `${window.location.origin}/auth/callback`,
-          scopes: 'tweet.read users.read offline.access', // Scopes spécifiques Twitter
+          scopes: 'users.read tweet.read', // Scopes minimaux pour test
           skipBrowserRedirect: false, // Laisser Supabase gérer la redirection
         }
       });
